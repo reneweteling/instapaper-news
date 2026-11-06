@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI-digest – vrijdag 6 november</title>
+<meta name="author" content="René Weteling">
+<meta property="og:title" content="AI-digest – vrijdag 6 november">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2026-11-06">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<article>
+<h1>AI-digest – vrijdag 6 november</h1>
+<p>Vandaag in het kort: Postman zette ongevraagd plugins en hooks in Claude Code en Codex, Anthropic geeft je een IP-allowlist voor je API-keys, en Cursor host nu zelf de apps die zijn agents bouwen. Verder nieuwe image-modellen van OpenAI en Copilot in Xcode.</p>
+
+<h2>1. Postman Desktop installeert ongevraagd plugins in Claude Code en Codex</h2>
+<p>Volgens een GitHub-issue installeerde Postman Desktop (o.a. 12.33.4 op macOS) automatisch een plugin in Claude Code en Codex. Ook kwam er een Postman CLI in ~/.local/bin en een remote MCP-server (<a href="http://mcp.postman.com">mcp.postman.com</a>). Daarnaast staat er een SessionStart-hook die je agent opdraagt Postmans &quot;api-engineer&quot;-skill te laden bij elk API-werk, en die hook zou zichzelf als trusted hebben goedgekeurd. Er is geen datalek aangetoond, maar het gedrag van je agent verandert wel buiten je om. Postman heeft aangegeven dat de opt-in duidelijker wordt.</p>
+<p><strong>Probeer:</strong> gebruik je Postman, check dan ~/.claude/settings.json, ~/.claude/plugins/installed_plugins.json, ~/.codex/config.toml en ~/.copilot/settings.json op Postman-entries. Kijk ook of ~/.local/bin/postman bestaat. In de app zit volgens gebruikers Help → Postman CLI and Plugins → Uninstall. Maak eerst een backup van je configs.</p>
+<p><a href="https://github.com/postmanlabs/postman-app-support/issues/14370">GitHub-issue #14370</a></p>
+
+<h2>2. Claude API: IP-allowlist voor je organisatie (beta)</h2>
+<p>In de Claude Console kun je nu IP-adressen of CIDR-ranges instellen, maximaal 1.000. Requests van andere adressen naar de Messages-, Batches-, Files-, Skills- en Managed Agents-endpoints worden dan geweigerd. Lekt er een API-key (een .env in een repo of een gelekte CI-variabele), dan kan een aanvaller daar buiten jouw netwerk weinig mee. Bedrock, Vertex en Foundry vallen hier niet onder. Of het voor jouw account aanstaat, hangt af van je overeenkomst met Anthropic.</p>
+<p><strong>Probeer:</strong> zet de vaste uitgaande IP's van je Docker-host of VPS en je CI erin, en vink de optie aan waarmee admins overal bij de instellingen kunnen. Houd daarna een dag of twee de 403-errors in de gaten, ook van cronjobs die maar af en toe draaien. Wijzigingen kunnen tot 15 minuten duren.</p>
+<p><a href="https://platform.claude.com/docs/en/manage-claude/ip-allowlist">Claude Docs – IP allowlisting</a></p>
+
+<h2>3. Cursor: &quot;Build Live Apps&quot; bouwt en host je app</h2>
+<p>Je beschrijft een tool, een cloud agent van Cursor bouwt de webapp en zet zo nodig Postgres op. Vóór publicatie draaien er deterministische en agentic security-checks, bijvoorbeeld op secrets in je bestanden. Daarna krijg je een live link, standaard achter Cursor-login. Het werkt vanuit nieuwe of bestaande GitHub-repo's, op alle betaalde plannen met cloud agents. Publiek delen kan alleen op individuele plannen. Het is vooral handig voor interne tools en prototypes, minder voor klantproductie.</p>
+<p><strong>Probeer:</strong> laat er een intern dashboard of admin-tooltje voor een klant mee bouwen en vergelijk het met je eigen Next.js + Docker-flow. Let op dat auth aan Cursor SSO vastzit, dus voor echte eindgebruikers is dit (nog) niks.</p>
+<p><a href="https://cursor.com/changelog/build-live-apps">Cursor changelog</a></p>
+
+<h2>4. OpenAI Images 2.6: Flare (snel) en Sunburst (kwaliteit), met SVG-export</h2>
+<p>Sinds 4 november kan ChatGPT GIFs maken en herbruikbare referentiebeelden opslaan. Voor developers komen er twee API-modellen aan. Flare levert een beeld in zo'n zes seconden, Sunburst is beter in consistente edits, accepteert een markup-laag in plaats van een mask en kan SVG exporteren. Volgens de community-thread staat nog niet vast welke model-ID's het worden en wat het kost. Gebruikers melden ook flink meer output-tokens bij low/medium quality.</p>
+<p><strong>Probeer:</strong> SVG-export is interessant voor iconen en illustraties in je Expo- en Next.js-apps. Test het eerst met een paar calls en reken de kosten na voordat je het in een feature stopt.</p>
+<p><a href="https://community.openai.com/t/images-upgraded-introducing-chatgpt-images-2-6/1412901">OpenAI Developer Community</a></p>
+
+<h2>5. GitHub Copilot werkt in Xcodes eigen coding assistant (preview)</h2>
+<p>In Xcode 27.3 beta (macOS Tahoe 26.6+) kun je Copilot kiezen als provider onder Settings → Intelligence, op alle Copilot-plannen. Dit staat los van de oude Copilot-extensie voor Xcode. Het is vooral handig als je in Expo-projecten native Swift-modules of config-plugins schrijft.</p>
+<p><a href="https://github.blog/changelog/2026-11-04-github-copilot-is-now-available-in-xcodes-coding-assistant">GitHub Changelog</a></p>
+
+<h2>6. Claude API: message threads (beta, sinds 2 november)</h2>
+<p>Bij lange agent-loops hoef je niet meer elke beurt het hele gesprek mee te sturen. Je maakt een thread aan met &quot;thread&quot;: {&quot;type&quot;: &quot;create&quot;} en stuurt daarna alleen nieuwe berichten met previous_message_id. System prompt en tools blijven op de server bewaard. Dat geeft een lagere en stabielere time-to-first-token. Een thread verloopt na 5 minuten zonder activiteit, dus jouw app moet de bron van waarheid blijven en een replay-pad hebben voor een 404. De SDK's (Python, TS) hebben een helper, client.beta.messages.thread(...), die dat voor je regelt.</p>
+<p><strong>Probeer:</strong> zet het in je RAG- of agent-backend op een lange tool-loop en meet de TTFT voor en na. Gebruik de beta-header message-threads-2026-08-12 of de SDK-helper. Let op: het is niet ZDR-eligible.</p>
+<p><a href="https://platform.claude.com/docs/en/build-with-claude/message-threads">Claude Docs – Message threads</a></p>
+
+<h2>Snel nog even</h2>
+<ul>
+<li>Fast mode op Claude Opus 4.8 verdwijnt op 30 november, dus stap over op Opus 5.5 als je speed: &quot;fast&quot; gebruikt: <a href="https://platform.claude.com/docs/en/release-notes/overview">Claude Platform release notes</a></li>
+<li>Anthropic FlashProve: open-source zero-knowledge proofs die aantonen dat een antwoord van bepaalde modelgewichten komt (voorlopig research): <a href="https://www.anthropic.com/research/provable-inference">anthropic.com</a></li>
+<li>Claude Code 2.1.318 toont nu wanneer je login verloopt in claude auth status en in de JSON van claude -p, handig voor scripts en CI: <a href="https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md">Claude Code changelog</a></li>
+</ul>
+</article>
+<p><a href="./">← Alle digests</a></p>
+</body>
+</html>
