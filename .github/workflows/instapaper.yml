@@ -1,0 +1,56 @@
+name: Send new digest to Instapaper
+
+on:
+  push:
+    branches: [main]
+    paths: ['20*.html']
+  workflow_dispatch:
+    inputs:
+      page:
+        description: 'Digest file to send, e.g. 2026-11-06.html'
+        required: true
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Find new digest pages
+        id: pages
+        run: |
+          if [ -n "${{ inputs.page }}" ]; then
+            files="${{ inputs.page }}"
+          else
+            files=$(git diff --name-only --diff-filter=A HEAD~1 HEAD | grep -E '^20[0-9]{2}-[0-9]{2}-[0-9]{2}\.html$' || true)
+          fi
+          echo "files=$(echo $files)" >> "$GITHUB_OUTPUT"
+          echo "New pages: ${files:-none}"
+
+      - name: Wait for Pages and add to Instapaper
+        if: steps.pages.outputs.files != ''
+        env:
+          IP_USER: ${{ secrets.INSTAPAPER_USERNAME }}
+          IP_PASS: ${{ secrets.INSTAPAPER_PASSWORD }}
+          BASE: https://reneweteling.github.io/instapaper-news
+        run: |
+          set -e
+          if [ -z "$IP_USER" ]; then echo "::error::Secret INSTAPAPER_USERNAME ontbreekt"; exit 1; fi
+          for f in ${{ steps.pages.outputs.files }}; do
+            url="$BASE/$f"
+            title=$(sed -n 's:.*<title>\(.*\)</title>.*:\1:p' "$f" | head -1)
+            echo "Waiting for $url"
+            for i in $(seq 1 60); do
+              code=$(curl -s -o /dev/null -w '%{http_code}' "$url")
+              [ "$code" = "200" ] && break
+              sleep 10
+            done
+            [ "$code" = "200" ] || { echo "::error::$url niet live na 10 min"; exit 1; }
+            status=$(curl -s -o /tmp/resp -w '%{http_code}' -u "$IP_USER:$IP_PASS" \
+              --data-urlencode "url=$url" --data-urlencode "title=$title" \
+              https://www.instapaper.com/api/add)
+            echo "Instapaper: HTTP $status"
+            [ "$status" = "201" ] || { cat /tmp/resp; echo "::error::Instapaper gaf HTTP $status"; exit 1; }
+          done
