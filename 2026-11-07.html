@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI-digest – zaterdag 7 november</title>
+<meta name="author" content="René Weteling">
+<meta property="og:title" content="AI-digest – zaterdag 7 november">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2026-11-07">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<article>
+<h1>AI-digest – zaterdag 7 november</h1>
+<p>Vandaag in het kort: Claude Code 2.1.319 geeft je meer controle over auto mode en MCP-taken, de nieuwe Claude SDK's (Python 2.0.0, TypeScript 1.0.0) hebben breaking changes, en Anthropic heeft een analytics-API voor kosten per key. Verder Gemini 4 Argon met een eigen API-CLI. Het was een rustige dag, veel bronnen waren vandaag niet te bereiken, dus ik hou het bij wat ik kon controleren.</p>
+
+<h2>1. Claude Code 2.1.319: strakkere auto mode en MCP-taken op de achtergrond</h2>
+<p>Auto mode valt niet meer terug op de ingebouwde classifier als telemetrie of feature flags ontbreken. Aanroepen die de server niet kan controleren, worden dan gevraagd of geweigerd. Wil je het oude gedrag, zet dan CLAUDE_CODE_AUTO_MODE_SERVER=0.</p>
+<p>Een taak die een MCP-server draait, gaat in de terminal meteen naar de achtergrond. Claude krijgt het resultaat als de taak klaar is. Nieuw is ook de setting permissions.denyInsteadOfPrompting, die tool calls weigert in plaats van op een prompt te wachten, en CLAUDE_CODE_DISABLE_FEATURE_FLAGS, die flags stopt zonder telemetrie uit te zetten.</p>
+<p><strong>Probeer:</strong> gebruik je Claude Code in CI of headless, zet dan permissions.denyInsteadOfPrompting aan. Een job blijft dan niet hangen op een prompt die niemand ziet. Heb je MCP-servers met langlopende taken, test dan of de nieuwe achtergrondafhandeling past. Zo niet, dan zet CLAUDE_CODE_DISABLE_MCP_TASK_BACKGROUND het oude gedrag terug.</p>
+<p><a href="https://code.claude.com/docs/en/changelog">Claude Code changelog</a></p>
+
+<h2>2. Claude API-versie 2026-10-21 en SDK's met breaking changes</h2>
+<p>Op 21 oktober kwam er een nieuwe API-versie, met een migratiegids en nieuwe SDK-releases: Python 2.0.0, TypeScript 1.0.0 en ant CLI 2.0.0. Deze versies bevatten breaking changes. De licentie is ook veranderd van MIT naar Apache 2.0. Dit stond nog niet in eerdere digests en valt makkelijk te missen als je dependencies niet vastzet.</p>
+<p><strong>Probeer:</strong> check in je Django- en Next.js-backends welke versie van de Anthropic SDK je gepind hebt. Upgrade op een branch, lees eerst de migratiegids en draai je tests tegen de nieuwe versie voordat je een range als ^1 of >=1 laat oppakken.</p>
+<p><a href="https://platform.claude.com/docs/en/release-notes/overview">Claude Platform release notes</a></p>
+
+<h2>3. Usage and Cost Analytics API (beta)</h2>
+<p>Sinds 29 oktober zijn er endpoints onder /v1/organizations/analytics/usage en /cost. Je zet ze aan met de header analytics-usage-cost-2026-08-24. Je kunt filteren en groeperen op model, workspace, API-key en gebruiker of service account. De oude Usage and Cost API en de report-endpoints van de Enterprise Analytics API zijn nu legacy. Ze blijven werken.</p>
+<p><strong>Probeer:</strong> als je per klant of per project een eigen API-key of workspace gebruikt, kun je hiermee kosten per RAG- of agent-backend uitrekenen zonder eigen logging. Vergelijk de cijfers eens met wat je zelf bijhoudt.</p>
+<p><a href="https://platform.claude.com/docs/en/release-notes/overview">Claude Platform release notes</a></p>
+
+<h2>4. Gemini 4 Argon en een API-CLI voor coding agents</h2>
+<p>Volgens de Gemini API changelog is gemini-4-argon algemeen beschikbaar, als het sterkste model van Google voor complexe code, agents, wiskunde en wetenschap. De exacte datum is onduidelijk: ik zag zowel 13 als 26 oktober. Op 27 oktober volgde een beta van de Gemini API CLI, een stateless client zonder dependencies voor coding agents, scripts en CI. Ik heb prijzen en benchmarks niet kunnen controleren.</p>
+<p><strong>Probeer:</strong> vooral de CLI is interessant als je agents in Docker of CI hebt die een tweede model nodig hebben. Lees eerst de changelog voor prijs en limieten voordat je het in een pipeline zet.</p>
+<p><a href="https://ai.google.dev/gemini-api/docs/changelog">Gemini API changelog</a></p>
+
+<h2>Snel nog even</h2>
+<ul>
+<li>De maximale requestgrootte voor Messages en Token Counting op de Claude API ging op 28 oktober van 32 MB naar 128 MB, handig voor PDF's en afbeeldingen in RAG-flows: <a href="https://platform.claude.com/docs/en/release-notes/overview">Claude Platform release notes</a></li>
+<li>Sinds 5 november kan de Admin API een Claude Enterprise-lid op alle apparaten uitloggen (beta): <a href="https://platform.claude.com/docs/en/release-notes/overview">Claude Platform release notes</a></li>
+<li>Tekst van Claude Mythos 5, Opus 4.7 en Sonnet 4.6 draagt sinds 3 november een Anthropic-watermerk. Bij Sonnet 4.6 kan een niet-standaard temperature, top_p of top_k dat watermerk uitschakelen: <a href="https://platform.claude.com/docs/en/release-notes/overview">Claude Platform release notes</a></li>
+<li>Meta zou de AI-codingstartup Conductor hebben overgenomen (multi-agent tooling). Dit komt uit één tweedehands bron en ik kon het niet bevestigen: <a href="https://digitimes.com/news/a20261106PD205/meta-startup-openai-market-development.html">Digitimes</a></li>
+</ul>
+</article>
+<p><a href="./">← Alle digests</a></p>
+</body>
+</html>
