@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI-digest – zondag 8 november</title>
+<meta name="author" content="René Weteling">
+<meta property="og:title" content="AI-digest – zondag 8 november">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2026-11-08">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<article>
+<h1>AI-digest – zondag 8 november</h1>
+<p>Vandaag in het kort: een rustige zondag. De nieuwe dingen komen vooral uit de Claude Code changelog (2.1.317 en 2.1.318, met aandacht voor background agents en MCP-blokkades) en uit een IP-allowlist voor Anthropic-organisaties. Google, OpenAI, Cursor en GitHub waren vandaag niet te bereiken of leverden niets controleerbaars op, dus daar meld ik niets.</p>
+
+<h2>1. Claude Code 2.1.318: background subagents en MCP-blokkades</h2>
+<p>Background subagents zetten shell-commando's na 3 minuten naar de achtergrond, op alle providers. Dat voorkomt dat de prompt cache verloopt terwijl een agent op een lang commando wacht. Ook nieuw: de setting deniedMcpServers blokkeert met een URL-entry nu ook de bijpassende door Anthropic geleverde servers en connectors.</p>
+<p>Daarnaast kan een cloud session starten met de optie "No repository", op een door Anthropic gehoste omgeving. En claude auth status toont loginExpiresAt, terwijl claude -p in JSON-output credential_expires_at meegeeft.</p>
+<p><strong>Probeer:</strong> draai je Claude Code headless in CI, lees dan credential_expires_at uit de JSON en laat de job vooraf falen als de login bijna verloopt. Gebruik je deniedMcpServers in een gedeelde config, check dan of de URL-regels niet ook connectors blokkeren die je wel wilt.</p>
+<p><a href="https://code.claude.com/docs/en/changelog">Claude Code changelog</a></p>
+
+<h2>2. Claude Code 2.1.317: SendMessage naar background agents en hooks die blokkeren</h2>
+<p>Een SendMessage naar een draaiende background agent zet het lopende commando nu naar de achtergrond. Het bericht komt dan sneller aan, zonder dat het commando stopt. Subagents en teammates op een ander model dan het hoofdgesprek gebruiken het opgeslagen effort level van dat model, niet dat van de sessie.</p>
+<p>Voor hooks in de Agent SDK kun je onFailure: "block" instellen. Faalt de hook-callback, dan wordt de actie geblokkeerd in plaats van doorgelaten. Claude Code vraagt ook toestemming voordat een web- of shell-aanroep je account-e-mail naar het netwerk stuurt.</p>
+<p><strong>Probeer:</strong> gebruik je hooks als vangnet, bijvoorbeeld om gevaarlijke commando's te scannen, zet dan onFailure: "block" aan. Een crashende hook laat dan niets meer ongezien door.</p>
+<p><a href="https://code.claude.com/docs/en/changelog">Claude Code changelog</a></p>
+
+<h2>3. IP-allowlist voor Anthropic-organisaties (beta)</h2>
+<p>Sinds 5 november kun je in de Claude Console een IP-allowlist instellen. Verzoeken van adressen buiten de lijst worden geweigerd. Je kunt IPv4 en IPv6 gebruiken, ook als CIDR-range, tot 1.000 per organisatie. Het doel is dat een gelekte API-key buiten je eigen netwerk niet bruikbaar is.</p>
+<p><strong>Probeer:</strong> heb je backends met vaste uitgaande IP's, zoals een Docker-host of NAT-gateway, dan is dit een goedkope extra laag. Test het eerst met een niet-kritieke workspace. Zet je CI-runners erop als die ook de API aanroepen, anders val je zelf buiten de lijst.</p>
+<p><a href="https://platform.claude.com/docs/en/manage-claude/ip-allowlist">IP allowlisting</a></p>
+
+<h2>4. Claude Code 2.1.319: details die je makkelijk mist</h2>
+<p>Gisteren stond de headline erin, hier de kleinere wijzigingen. /loop stopt nu als een self-paced beurt eindigt zonder opnieuw in te plannen. Wil je het oude gedrag, zet dan CLAUDE_CODE_LOOP_KEEPALIVE=1. Heb je een loop die zichzelf moet blijven wakker maken, dan breekt dit hem stilletjes.</p>
+<p>Nieuw is ook /claude-api latency-optimize, en /tasks toont een rij "Earlier in this session".</p>
+<p><strong>Probeer:</strong> check je bestaande /loop-prompts. Plant de prompt zichzelf niet elke ronde opnieuw in, zet dan de keepalive-variabele of pas de prompt aan.</p>
+<p><a href="https://code.claude.com/docs/en/changelog">Claude Code changelog</a></p>
+
+<h2>Snel nog even</h2>
+<ul>
+<li>De Read tool geeft bij een tweede keer lezen van een bestand weer de inhoud terug, niet meer een "file unchanged" stub (2.1.317): <a href="https://code.claude.com/docs/en/changelog">Claude Code changelog</a></li>
+<li>/schedule waarschuwt als een nieuwe cloud-taak connectors krijgt die je niet hebt aangevraagd (2.1.317): <a href="https://code.claude.com/docs/en/changelog">Claude Code changelog</a></li>
+<li>De IDE-extensie wordt niet meer geïnstalleerd of bijgewerkt als je Claude Code start in een IDE-terminal. Gebruik /ide vanuit een andere terminal (2.1.318): <a href="https://code.claude.com/docs/en/changelog">Claude Code changelog</a></li>
+</ul>
+</article>
+<p><a href="./">← Alle digests</a></p>
+</body>
+</html>
