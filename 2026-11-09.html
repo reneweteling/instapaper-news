@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI-digest – maandag 9 november</title>
+<meta name="author" content="René Weteling">
+<meta property="og:title" content="AI-digest – maandag 9 november">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2026-11-09">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<article>
+<h1>AI-digest – maandag 9 november</h1>
+<p>Vandaag in het kort: Anthropic lanceert Claude Fable 5.2 en Mythos 5.2, goedkoper dan de 5.1-versies. Daar hangen een paar API-wijzigingen aan die je code kunnen breken, vooral rond thinking blocks en computer use. Daarnaast een deadline voor fast mode op Opus 4.8 en een paar beveiligingsfixes in Claude Code 2.1.319. Van Google, OpenAI, Cursor en GitHub kon ik vandaag niets controleerbaars vinden.</p>
+
+<h2>1. Claude Fable 5.2 en Mythos 5.2 zijn er</h2>
+<p>Fable 5.2 is het nieuwe topmodel van Anthropic voor iedereen met API-toegang. Het model-ID is claude-fable-5-2, met 1M tokens context en maximaal 128k output. De prijs is $8 per miljoen input-tokens en $40 per miljoen output-tokens, tegen $10 en $50 bij Fable 5.1. Mythos 5.2 is hetzelfde onderliggende model, maar alleen voor organisaties die via de verificatieprogramma's van Anthropic zijn goedgekeurd, zoals voor cyber.</p>
+<p>Volgens Anthropic zelf scoort Fable 5.2 boven Opus 5.5, bijvoorbeeld 69,9% tegen 62,3% op FrontierSWE v2 en 49,1% tegen 45,5% op FrontierCode 2.0. Dat zijn cijfers van de leverancier, dus nog geen bewijs voor jouw codebase. Het model is beschikbaar via de Claude API, Bedrock, Google Cloud en Microsoft Foundry. In de aankondiging staat Medium als standaard effort in Claude Code. Of Claude Code het model direct als keuze toont, staat er niet duidelijk in.</p>
+<p><strong>Probeer:</strong> draai je eigen eval of een paar echte taken uit je agent-backend tegen claude-fable-5-2 en Opus 5.5, met dezelfde prompts. Kijk naar kosten per geslaagde taak, niet alleen naar de prijs per token.</p>
+<p><a href="https://www.anthropic.com/claude-fable-and-mythos-5-2">Anthropic: Claude Fable 5.2 en Mythos 5.2</a></p>
+
+<h2>2. API-wijzigingen die je code kunnen breken</h2>
+<p>De prefix check geldt nu voor alle accounts. Pas je de system prompt, de tools of een eerder bericht aan en stuur je daarna een thinking block van een latere beurt terug, dan krijg je een 400. Voor agent-loops die berichten herschrijven of comprimeren is dit het eerste om te controleren.</p>
+<p>Verder gebruikt Fable 5.2 de toolset computer_toolset_20260801. De oude computer_20251124 geeft overal een 400, behalve op Bedrock. In de advisor tool (beta) accepteert een Fable 5.2-executor alleen Fable 5.2 of Mythos 5.2 als advisor. Thinking blocks van deze modellen werken alleen in het account dat ze maakte of een gekoppeld account. En beide modellen vereisen 30 dagen retentie, dus zero data retention is er niet, tenzij Anthropic het uitdrukkelijk toestaat.</p>
+<p><strong>Probeer:</strong> zoek in je code naar plekken waar je de berichtgeschiedenis bewerkt voordat je die terugstuurt. Zet daar een test omheen met een Fable 5.2-call voordat je het model in productie zet.</p>
+<p><a href="https://platform.claude.com/docs/en/release-notes/overview">Claude Platform release notes</a></p>
+
+<h2>3. Fast mode: nieuw voor Fable 5.2, weg voor Opus 4.8 op 30 november</h2>
+<p>Fable 5.2 heeft fast mode op de Claude API, met tot 2,5 keer hogere output-snelheid. Je zet speed: "fast" op het verzoek, zonder beta header. De prijs is $16 per miljoen input-tokens en $80 per miljoen output-tokens, het dubbele van standaard.</p>
+<p>Los daarvan stopt fast mode voor claude-opus-4-8 op 30 november 2026. Daarna geeft speed: "fast" een fout. Anthropic adviseert te migreren naar Opus 5.5 als je fast mode wilt houden. Deze deprecation is sinds 30 oktober bekend, maar de deadline komt nu dichtbij.</p>
+<p><strong>Probeer:</strong> grep je repo's op claude-opus-4-8 in combinatie met speed. Zo ja, plan de migratie deze maand in plaats van op 29 november.</p>
+<p><a href="https://platform.claude.com/docs/en/release-notes/overview">Claude Platform release notes</a></p>
+
+<h2>4. Claude Code 2.1.319: beveiligingsfixes en een nieuwe permission-setting</h2>
+<p>Het hoofdverhaal van deze versie stond gisteren al in de digest. Hier de kant die je makkelijk mist. Er zit een fix in voor een Bash permission bypass, waarbij een gemaakt environment-prefix een deel van een commando kon verbergen voor de permission checks. Ook gefixt: een sandbox escape bij het aanmaken van een worktree, en een sed-commando dat de permission check oversloeg in accept-edits en auto mode.</p>
+<p>Nieuw is permissions.denyInsteadOfPrompting. Een tool-call die anders op een prompt zou wachten, wordt geweigerd en de beurt gaat door. Dat werkt in terminal-sessies, subagents en teammates. Handig voor onbemande runs die anders blijven hangen.</p>
+<p><strong>Probeer:</strong> update Claude Code als je auto mode of de sandbox gebruikt. Zet denyInsteadOfPrompting aan in headless CI-runs, zodat een agent niet eindeloos op een prompt wacht.</p>
+<p><a href="https://code.claude.com/docs/en/changelog">Claude Code changelog</a></p>
+
+<h2>Snel nog even</h2>
+<ul>
+<li>Claude Desktop krijgt op 10 november een wijziging rond desktopHome, coworkTabEnabled en chatSessionRetentionDays. De Claude apps gateway waarschuwt er sinds 2.1.319 al voor bij de start: <a href="https://code.claude.com/docs/en/changelog">Claude Code changelog</a></li>
+<li>Fable 5.2 en Mythos 5.2 onthouden redeneerstappen over modelwissels heen, op de Claude API en Google Cloud (Google-managed). Wissel je daarna naar een ander model, dan worden hun thinking blocks weggelaten en slaagt het verzoek toch: <a href="https://platform.claude.com/docs/en/release-notes/overview">Claude Platform release notes</a></li>
+<li>Blokkeren de cyber- of biologie-classifiers een Fable-verzoek, dan valt het terug op Opus 4.8 (cyber) of Opus 5 (biologie). Handel dat af in je client: <a href="https://www.anthropic.com/claude-fable-and-mythos-5-2">Anthropic: Claude Fable 5.2 en Mythos 5.2</a></li>
+</ul>
+</article>
+<p><a href="./">← Alle digests</a></p>
+</body>
+</html>
