@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI-digest – dinsdag 10 november</title>
+<meta name="author" content="René Weteling">
+<meta property="og:title" content="AI-digest – dinsdag 10 november">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2026-11-10">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<article>
+<h1>AI-digest – dinsdag 10 november</h1>
+<p>Vandaag in het kort: Claude Code 2.1.321 en 2.1.322 zijn uit. De belangrijkste inhoud is beveiliging: een fix voor MCP OAuth-secrets die naar een andere host konden lekken en meerdere gaten in permission checks. Daarnaast is Fable 5.2 nu de standaard Fable in Claude Code, en komt fast mode naar Vertex. Van OpenAI, Google, Cursor en GitHub kon ik vandaag niets controleerbaars vinden. Sommige sites waren vanuit mijn omgeving niet bereikbaar.</p>
+
+<h2>1. Claude Code 2.1.321: MCP OAuth-lek en gaten in permission checks</h2>
+<p>De versie van 9 november bevat 74 bugfixes, en een deel daarvan raakt je veiligheid. Als een MCP-server een OAuth-verzoek doorstuurde naar een andere host, stuurde Claude Code secrets zoals refresh tokens mee naar die host. Dat is gefixt. Gebruik je MCP-servers met OAuth, dan is dit de reden om te updaten.</p>
+<p>Verder gefixt: een read-only Bash-commando dat buiten de sandbox liep zonder prompt, en Bash permission checks die een bestand beoordeelden vanuit de verkeerde map. Deny rules en protected-file prompts gelden nu ook voor het bestand dat een cp of mv naar een map schrijft. En cp of mv met een pad ervoor, zoals /bin/cp, krijgt dezelfde checks als de kale variant.</p>
+<p><strong>Probeer:</strong> update Claude Code op elke machine waar agents met auto mode of een sandbox draaien. Gebruik je MCP-servers met OAuth, overweeg dan de tokens te roteren die sinds de eerste redirect zijn uitgegeven. Het changelog zegt niet of dit in de praktijk is misbruikt.</p>
+<p><a href="https://code.claude.com/docs/en/changelog">Claude Code changelog</a></p>
+
+<h2>2. Fable 5.2 is de standaard Fable in Claude Code</h2>
+<p>In 2.1.321 is claude-fable-5-2 toegevoegd als standaard Fable-model, met 1M context en $8 per miljoen input-tokens en $40 per miljoen output-tokens. Cache reads kosten $0,20 per miljoen tokens.</p>
+<p>Let op: opgeslagen keuzes voor Fable 5.1 gaan op Pro en Max meteen over naar het alias fable. Op Team en Enterprise gebeurt dat zodra je organisatie het toestaat. Wil je terug, dan werkt /model claude-fable-5-1. Heb je een pipeline of eval die op 5.1-gedrag is afgesteld, dan verandert die zonder dat jij iets doet.</p>
+<p><strong>Probeer:</strong> pin het model-ID expliciet in scripts en CI, in plaats van het alias fable te gebruiken. Dan blijven vergelijkingen tussen runs eerlijk.</p>
+<p><a href="https://code.claude.com/docs/en/changelog">Claude Code changelog</a></p>
+
+<h2>3. Strengere beheerinstellingen: marketplaces, Remote Control en de gateway</h2>
+<p>Voor wie Claude Code beheert voor een team staan er een paar wijzigingen in 2.1.321. Een in managed extraKnownMarketplaces gedeclareerde naam kan niet meer vanuit een andere bron worden toegevoegd. Een entry uit een andere bron wordt verborgen en de plugins van de gedeclareerde marketplace worden daaruit opnieuw geïnstalleerd. Remote Control-sessies houden de map waarin ze zijn gestart. Een verbonden client kan een sessie niet meer naar een andere map verplaatsen. Nieuw is ook de optie --settings op claude remote-control, die één settings-bestand op elke gestarte sessie toepast.</p>
+<p>In de Claude apps gateway tellen managed MCP-servers bij policy_mode: layered nu op over alle passende policies, inclusief match: {}. Een gateway die daar al op staat, serveert na de upgrade meer servers. Bedrock-, Vertex- en Foundry-upstreams negeren verder de ANTHROPIC_*_BASE_URL variabelen uit de omgeving van de gateway. Gebruik base_url op de upstream zelf.</p>
+<p><strong>Probeer:</strong> draai je de gateway, controleer dan vóór de upgrade welke managed MCP-servers je policies samen opleveren. En zoek in je gateway-config naar ANTHROPIC_*_BASE_URL variabelen die je nu nog via de omgeving zet.</p>
+<p><a href="https://code.claude.com/docs/en/changelog">Claude Code changelog</a></p>
+
+<h2>4. Claude Code 2.1.322: fast mode op Vertex</h2>
+<p>De release van vandaag is klein. Fast mode werkt nu op Vertex in de regio's global, us en eu. Weigert Vertex fast mode, dan valt Claude Code terug op standaard snelheid, zonder fout. In 2.1.321 zijn ook de labels in /fast, /config en /model aangepast: ze noemen nu het huidige model als dat fast mode ondersteunt.</p>
+<p>Voor de Claude API stond fast mode voor Fable 5.2 al in de digest van gisteren, met speed: "fast" en een prijs van $16 en $80 per miljoen tokens. Voor Vertex noemt de changelog geen prijs, dus reken niet op dezelfde tarieven.</p>
+<p><strong>Probeer:</strong> gebruik je Claude Code via Vertex, dan kun je fast mode nu aanzetten voor interactief werk. Houd de kosten de eerste dagen in de gaten.</p>
+<p><a href="https://code.claude.com/docs/en/changelog">Claude Code changelog</a></p>
+
+<h2>Snel nog even</h2>
+<ul>
+<li>Mods die Claude schrijft gaan in auto en bypass modes niet meer zonder vragen aan, en laden niet in dontAsk mode. Hun eigen tool-calls ($.tool.call, $.mcp.call) geven geen permission prompt meer, maar deny rules en organisatiebeleid blijven gelden: <a href="https://code.claude.com/docs/en/changelog">Claude Code changelog</a></li>
+<li>Headless sessies laden mods in .claude/skills opnieuw als de bestanden veranderen. Zet CLAUDE_CODE_PLUGIN_DIR_WATCH=0 om dat uit te zetten: <a href="https://code.claude.com/docs/en/changelog">Claude Code changelog</a></li>
+<li>Skill- en commandonamen met een Bamum-letter, die in sommige fonts als leeg teken verschijnt, worden geweigerd. Dat sluit een manier om een naam te vermommen: <a href="https://code.claude.com/docs/en/changelog">Claude Code changelog</a></li>
+<li>PreToolUse mcp_tool hooks op stdio en HTTP MCP-servers werden overgeslagen bij een antwoord boven 16 MiB. De tool-call wordt nu geweigerd: <a href="https://code.claude.com/docs/en/changelog">Claude Code changelog</a></li>
+</ul>
+</article>
+<p><a href="./">← Alle digests</a></p>
+</body>
+</html>
