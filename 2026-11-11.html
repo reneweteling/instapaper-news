@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI-digest – woensdag 11 november</title>
+<meta name="author" content="René Weteling">
+<meta property="og:title" content="AI-digest – woensdag 11 november">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2026-11-11">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<article>
+<h1>AI-digest – woensdag 11 november</h1>
+<p>Vandaag in het kort: Google brengt Gemini 4 Carbon uit en een goedkope Decisions API voor routing en policy checks, Antigravity krijgt /swarm voor teams van agents, en DeepMind verifieert de code van Signal met Lean. Er zijn ruim 35.000 Grok-apps zonder inlog gevonden. Anthropic is aan de roadshow voor zijn beursgang begonnen, en CoreWeave verhoogt zijn prognose. Verder een Chrome zero-day en Barracuda-lekken die actief worden misbruikt. Let op: openai.com, Reuters, Ars Technica en The Verge waren vanuit mijn omgeving niet bereikbaar, dus OpenAI-nieuws en een deel van de marktberichten ontbreekt of is alleen via samenvattingen bevestigd.</p>
+
+<h2>1. Gemini 4 Carbon is beschikbaar via de API</h2>
+<p>Google heeft op 10 november Gemini 4 Carbon uitgebracht, het sterkste model van de Gemini 4-familie. Het model-ID is gemini-4-carbon. Het is bedoeld voor lastig coderen, debuggen en langlopende agent-taken, en het gebruikt meer tokens om te redeneren en te verifiëren dan Gemini 4 Argon. Argon blijft volgens Google de betere keuze voor het meeste gewone softwarewerk. Carbon was twee weken eerder al beschikbaar voor beveiligers via het Fairwind Program.</p>
+<p>De prijs is voorlopig $2 per miljoen input-tokens en $10 per miljoen output-tokens, gelijk aan Argon. Vanaf 30 november wordt dat $4 en $20. Google meldt een eerste plaats op CursorBench 4.0 en op Zapier's AutomationBench, bij meer dan twee keer lagere kosten per taak dan het beste externe model. Dat zijn cijfers van Google zelf met door hen gekozen benchmarks, dus neem ze met een korrel zout.</p>
+<p>Interessant voor jou is vooral de introductieprijs: tot 30 november kun je Carbon goedkoop naast je huidige model leggen op je eigen agent-taken, voordat het tarief verdubbelt.</p>
+<p><strong>Probeer:</strong> draai een vaste set van je eigen taken (een Django-refactor, een RAG-eval) door gemini-4-carbon en je huidige model, en vergelijk kosten per geslaagde taak, niet alleen de score.</p>
+<p><a href="https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-4-carbon-now-available/">Google: Gemini 4 Carbon</a></p>
+
+<h2>2. Gemini Decisions API: een model dat geen tekst schrijft</h2>
+<p>Google heeft een nieuw endpoint met het model gemini-decision-1. Het genereert geen antwoord maar scoort opties in één forward pass en geeft kansen en een confidence tussen 0 en 1 terug. Je stelt tot 1.000 vragen per request, van het type ja/nee, meerkeuze (2 tot 255 opties) of rubric-score. Invoer kan tekst, beeld, audio, video of pdf zijn, tot 256K tokens.</p>
+<p>Denk aan tool-selectie, policy checks, model routing en het beoordelen van opgehaalde context in een RAG-pipeline. De latency ligt volgens Google op 150 tot 250 ms. De prijs is $0,10 per miljoen input-tokens en niets voor output. De gedeelde invoer wordt maar één keer gerekend, ook bij veel vragen. Er is een gratis tier in AI Studio. Integraties met LangChain, LiteLLM, Vercel, Pydantic AI en OpenRouter worden uitgerold.</p>
+<p>Dit past op een bekend patroon in agent-backends: een goedkope classifier voor de routering, een duur model voor het eigenlijke werk. De claim dat het bijna vijf keer goedkoper is dan Gemini 3.5 Flash-Lite komt van Google en geldt voor hun eigen testset.</p>
+<p><strong>Probeer:</strong> vervang in een RAG-flow de LLM-stap die chunks op relevantie beoordeelt door één Decisions-call met een score-vraag per chunk, en vergelijk latency en kwaliteit.</p>
+<p><a href="https://blog.google/innovation-and-ai/technology/developers-tools/gemini-decisions-api/">Google: Gemini Decisions API</a></p>
+
+<h2>3. Antigravity /swarm: een coördinator met werkers en een verifier</h2>
+<p>In Google Antigravity (app en CLI) staat nu een preview van /swarm, voor Google AI Pro en Ultra. Je gesprek wordt de coördinator die het werk opsplitst in stukken die niet botsen, bijvoorbeeld één werker per bestand of package. Elke werker begint met een schone context en een korte opdracht. Er is ook een verifier die diffs bekijkt en tests draait. Ze praten via een gedeeld bord, niet privé met elkaar.</p>
+<p>De documentatie noemt de nadelen zelf. Een swarm verbruikt je quota veel sneller dan één gesprek. Werkers delen standaard je werkmap. Een werker zonder quota pauzeert en gaat niet vanzelf verder. Een verwijderde werker kun je niet terughalen.</p>
+<p>Het concept ken je uit andere tools, maar de duidelijke rolverdeling met een aparte verifier is het bekijken waard. Het staat ook bovenaan Google's verhaal over Carbon, dat voor de zwaarste rollen wordt ingezet.</p>
+<p><strong>Probeer:</strong> geef /swarm een afgebakende taak met een harde check, zoals "migreer deze twintig tests naar pytest, de suite moet groen blijven", en kijk hoeveel quota dat kost.</p>
+<p><a href="https://antigravity.google/docs/swarm/">Antigravity: Swarm</a></p>
+
+<h2>4. Ruim 35.000 Grok-apps stonden open voor iedereen met de link</h2>
+<p>Onderzoeksbureau Claroc publiceerde op 10 november een rapport over apps die met Grok zijn gebouwd en op grok.me draaien. Ze probeerden 43.551 adressen. Daarvan waren er 37.571 nog online en 35.578 daarvan (94,7 procent) openden zonder inlog. Ongeveer één op de tien bevatte gevoelig materiaal, naar schatting 650 tot 800 apps met privégegevens. Het ging onder meer om een urenregistratie met wachtwoorden in platte tekst, een personeelsrooster van een ziekenhuis en interne documenten van SpaceXSI en X zelf.</p>
+<p>De onderzoekers noemen drie oorzaken. In het publicatiescherm stond "Anyone with the link" vooraf geselecteerd. Elke app krijgt een eigen hostnaam, die via passieve DNS-data te vinden is. En in een testapp voegde de gegenereerde inlogcode eerst elke ingelogde gebruiker aan het team toe en controleerde pas daarna het lidmaatschap, waardoor de check altijd slaagde.</p>
+<p>SpaceXSI zegt dat apps privé zijn tot ze gedeeld worden en dat medewerkers standaard op "Only you" staan. Het nam 24 apps van eigen medewerkers offline, maar niet die van andere gebruikers. De onderzoekers betwisten dat de extra stappen bescherming bieden. Dit is hun versie, de volledige reactie van het bedrijf kon ik niet verifiëren.</p>
+<p>De les geldt breder voor vibe-coded apps: controleer wat de standaard van een publicatieknop is en of er een database zonder auth achter zit.</p>
+<p><a href="https://blog.claroc.io/ghostshares-grok-build-apps">Claroc: GhostShares 2</a></p>
+
+<h2>5. DeepMind verifieert de code van Signal met Lean</h2>
+<p>Google DeepMind presenteert AlphaProof Code, een systeem waarin menselijke experts bepalen wat bewezen moet worden en AI-agents de bewijzen schrijven. Ze verifieerden de echte code van Signal's cryptografische protocol, tot en met de gecompileerde code op apparaten. Het ging om eigenschappen zoals het beschermd blijven van berichten voor en na een tijdelijk gecompromitteerd apparaat.</p>
+<p>Het kostte ongeveer vier weken, waar dit werk volgens DeepMind normaal jaren van expertteams vergt. De agents, aangedreven door Gemini Carbon, schreven meer dan zes miljoen regels Lean. Ongeveer 1 procent van de code werd gemarkeerd voor menselijke review. Als test zette men twee eerder gefixte bugs terug in een kopie, en het systeem leverde in beide gevallen een machinaal gecontroleerd bewijs dat die versie onveilig was. Er zijn volgens de samenvattingen geen nieuwe bugs gevonden.</p>
+<p>De verificatie-artefacten zijn open source, het systeem zelf lijkt niet als tool uitgebracht. Voor gewone applicatiecode is dit nog ver weg, maar het laat zien waar formele verificatie met agents naartoe gaat.</p>
+<p><a href="https://deepmind.google/blog/introducing-alphaproof-code/">DeepMind: AlphaProof Code</a></p>
+
+<h2>6. Anthropic start de roadshow voor de beursgang</h2>
+<p>Anthropic heeft op 10 november de roadshow gestart. Volgens de aankondiging worden 825 miljoen aandelen Class A aangeboden, waarvan 801.351.354 nieuwe aandelen van Anthropic zelf en 23.648.646 van bestaande aandeelhouders. De verwachte prijsrange is $70 tot $78, de notering is op Nasdaq onder het symbool ANT, met Goldman Sachs en Morgan Stanley als banken. De registratie is nog niet effectief.</p>
+<p>Volgens Bloomberg-koppen op Techmeme zou de uitgifte meerdere keren overtekend zijn. Die artikelen zelf zijn betaalmuurbronnen die ik niet kon lezen. In de roadshowvideo zegt Anthropic Claude te trainen en te serveren op AWS Trainium, Google TPU's, Nvidia- en AMD-GPU's.</p>
+<p>Voor jou is dit vooral achtergrond: het zegt iets over de stabiliteit van een leverancier waar je tooling op leunt, en over hoe de markt AI-bedrijven nu waardeert.</p>
+<p><a href="https://www.anthropic.com/news/roadshow-launch">Anthropic: roadshow</a></p>
+
+<h2>7. Chips en markt: CoreWeave groeit, Nvidia onder de loep</h2>
+<p>CoreWeave meldde over Q3 een omzet van $3,66 miljard, 168 procent meer dan een jaar eerder en boven de verwachting van $3,55 miljard. Het nettoverlies volgens GAAP was $709 miljoen. De omzetprognose voor 2026 gaat omhoog naar $13 tot $13,3 miljard, de backlog is $132,5 miljard en de capex ligt op $37 tot $39 miljard. Het aandeel had in de maand ervoor ruim 40 procent verloren in een bredere uitverkoop van AI-infrastructuur en steeg na de cijfers na beurssluiting.</p>
+<p>Twee verhalen over Nvidia heb ik alleen via koppen kunnen zien, omdat Reuters en Ars Technica niet bereikbaar waren. Reuters meldt volgens Techmeme dat een Chinese universiteit met banden met het leger, ondanks een Amerikaanse blacklist, toegang tot H200-chips van Nvidia heeft gekocht. En volgens Ars Technica heeft Jensen Huang een affaire met een leidinggevende van Megaspeed erkend, waarop het bestuur van Nvidia onderzoekt of er sprake is van Chinese spionage. Beide zijn niet door mij bij de bron gecontroleerd.</p>
+<p><a href="https://www.cnbc.com/2026/11/10/coreweave-crwv-q3-earnings-report-2026.html">CNBC: CoreWeave Q3</a></p>
+
+<h2>8. Beveiliging: Chrome zero-day en Barracuda onder vuur</h2>
+<p>Google heeft de achtste actief misbruikte Chrome zero-day van 2026 gepatcht: CVE-2026-125350, een use-after-free in de XML-parser. De fix zit in Stable 157.0.8103.50 (Windows en macOS .50/.51, Linux .50). Details houdt Google nog achter. Chromium-browsers zoals Edge volgen meestal later, en je Playwright- en Puppeteer-omgevingen draaien vaak een eigen versie.</p>
+<p>Barracuda meldt dat twee kwetsbaarheden in de Email Security Gateway en andere producten worden misbruikt bij een klein aantal organisaties. CVE-2026-111560 geeft ongeauthenticeerde command injection met rootrechten, CVE-2026-116606 is een authenticatiezwakte. Misbruik vereist toegang tot de beheerinterface. Patches bestaan al ongeveer een week. Beperk de admin-UI tot interne netwerken.</p>
+<p><strong>Probeer:</strong> controleer Chrome en je headless-browser-images op versie 157.0.8103.50 of nieuwer.</p>
+<p><a href="https://www.bleepingcomputer.com/news/security/google-patches-eighth-chrome-zero-day-exploited-in-attacks-this-year/">BleepingComputer: Chrome zero-day</a></p>
+
+<h2>Snel nog even</h2>
+<ul>
+<li>Modern Web Guidance 1.0 geeft coding agents kennis over webplatform, toegankelijkheid en browsercompatibiliteit, nu ook met Firefox en Edge. Installeer met npx modern-web-guidance@latest install: <a href="https://developer.chrome.com/blog/modern-web-guidance-v1">Chrome for Developers</a></li>
+<li>Sentry combineert zijn CLI en MCP-server zodat agents dezelfde authenticatie delen, met de CLI voor bestandswerk en MCP voor ontdekbare tools: <a href="https://x.com/zeeg/status/2120224571689484639">Sentry op X</a></li>
+<li>N-able haalde zijn gehoste N-central offline nadat een onderzoeker 33 kwetsbaarheden met proof of concept openbaar maakte: <a href="https://thehackernews.com/2026/11/n-able-takes-hosted-n-central-offline.html">The Hacker News</a></li>
+<li>Microsoft zegt dat MAI-Transcribe-2 het snelste, nauwkeurigste en goedkoopste spraakherkenningsmodel is. Dat is een claim van Microsoft: <a href="https://microsoft.ai/news/mai-transcribe-2-is-the-fastest-most-accurate-and-cheapest-speech-recognition-model-in-the-world/">Microsoft AI</a></li>
+<li>Google DeepMind lanceert AlphaGenome 2, getraind op meer dan 100 miljoen celprofielen uit 68 weefsels, volgens een kop van The Verge: <a href="https://www.theverge.com/ai-artificial-intelligence/1031524/google-deepmind-alphagenome-2-genetic-ai-model">The Verge</a></li>
+<li>OpenAI neemt Odessia over, een reisstartup van de oprichter van Sonder: <a href="https://techcrunch.com/2026/11/10/openai-acquires-odessia-travel-startup-created-by-sonder-founder/">TechCrunch</a></li>
+<li>United Airlines wil voorkomen dat persoonlijke AI-assistenten tickets boeken, meldt de Wall Street Journal: <a href="https://www.wsj.com/tech/ai/united-airlines-is-banning-ai-bots-from-booking-flights-5b514b38">WSJ</a></li>
+<li>Meta kondigt een snellere alternatieve k-means aan in de Faiss-repo, relevant voor vectorindexen: <a href="https://github.com/facebookresearch/faiss/tree/main/contrib/e_means">GitHub</a></li>
+</ul>
+</article>
+<p><a href="./">← Alle digests</a></p>
+</body>
+</html>
