@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI-digest – woensdag 11 november</title>
+<meta name="author" content="René Weteling">
+<meta property="og:title" content="AI-digest – woensdag 11 november">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2026-11-11">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<article>
+<h1>AI-digest – woensdag 11 november</h1>
+<p>Vandaag in het kort: Google brengt Gemini 4 Carbon uit, met /swarm in Antigravity en een introductieprijs tot 30 november. Verder een Chrome zero-day, actief misbruikte Barracuda-gaten, 35.000 openbare Grok-apps en een Chrome-pakket met webkennis voor coding agents. Van OpenAI, Cursor en GitHub kon ik vandaag niets controleerbaars vinden.</p>
+
+<h2>1. Gemini 4 Carbon is beschikbaar in de API</h2>
+<p>Google heeft gemini-4-carbon uitgebracht. Het model zit in Google AI Studio en Gemini for business, en komt voor Ultra-abonnees in Antigravity, de Gemini-app en AI Mode. De prijs is tot en met 30 november $2 per miljoen input-tokens en $10 per miljoen output-tokens. Daarna wordt het $4 en $20. De contextgrootte noemt Google niet in het bericht.</p>
+<p>Google claimt de nummer 1 te zijn op CursorBench 4.0, WANDR en AutomationBench, met meer dan twee keer lagere kosten per taak dan het beste externe model. Dat zijn cijfers van Google zelf, op deels niet-openbare benchmarks. Voor jou is de prijs interessanter dan de ranking: de introductieperiode is een goedkoop moment om het naast je huidige model te leggen.</p>
+<p><strong>Probeer:</strong> draai een paar echte taken uit je eigen repo of RAG-eval met gemini-4-carbon en vergelijk kosten per taak. Doe dat vóór 30 november, dan zie je ook wat de prijs daarna betekent.</p>
+<p><a href="https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-4-carbon-now-available/">Google: Gemini 4 Carbon now available</a></p>
+
+<h2>2. Antigravity /swarm: een team agents met een gedeeld bord</h2>
+<p>Met /swarm wordt je gesprek in Antigravity een coördinator die de taak opsplitst en benoemde workers toevoegt, zoals @parser of @api-tests. Elke worker heeft een eigen schone context. Per twee tot vier workers komt er meestal een @verifier bij. Ze overleggen via één gedeeld bord. De functie is in preview, voor Google AI Pro en Ultra, in de app en de CLI.</p>
+<p>Let op de kosten: elke worker is een eigen agent, dus een swarm gebruikt je quota veel sneller dan één gesprek. Zonder quota pauzeert een worker en start niet vanzelf weer. Verwijderen is definitief.</p>
+<p><strong>Probeer:</strong> start met een klein, goed afgebakend onderdeel, bijvoorbeeld tests schrijven voor één Django-app, en bekijk het bord met /swarm board in de CLI.</p>
+<p><a href="https://antigravity.google/docs/swarm/">Antigravity docs: Swarm</a></p>
+
+<h2>3. Chrome zero-day: update naar 157.0.8103.50</h2>
+<p>Google heeft een noodfix uitgebracht voor een use-after-free in de XML-parser van Chrome, CVE-2026-125350. Google zegt dat er een exploit in het wild bestaat. Het is de achtste actief misbruikte Chrome zero-day dit jaar. De fix zit in 157.0.8103.50 (Linux) en 157.0.8103.50/.51 (Windows en macOS). Verdere details over de aanvallen heeft Google niet gedeeld.</p>
+<p>Chromium-gebaseerde browsers en tools zoals Electron-apps en headless Chrome in je CI of Playwright-setup volgen later. Dat is meteen een controlepunt.</p>
+<p><strong>Probeer:</strong> controleer chrome://version op je eigen machines en kijk welke Chromium-versie je Playwright-image in Docker gebruikt.</p>
+<p><a href="https://www.bleepingcomputer.com/news/security/google-patches-eighth-chrome-zero-day-exploited-in-attacks-this-year/">BleepingComputer</a></p>
+
+<h2>4. Barracuda: twee kwetsbaarheden geven root, en worden misbruikt</h2>
+<p>CVE-2026-116606 is een authenticatieprobleem in de Email Security Gateway waarmee je de globale configuratie kunt wijzigen. CVE-2026-111560 is een command injection zonder authenticatie die als root draait en meerdere producten raakt: ESG, Load Balancer ADC, Message Archiver, WAF, WAF Control Center en Web Security Gateway. Barracuda zegt dat beide worden misbruikt bij een klein aantal organisaties. Voor misbruik is toegang tot de admin-interface nodig.</p>
+<p>De patches zijn een week geleden uitgebracht. Voor ESG zijn dat BNSF-40425 (vanaf 9.4.017) en BNSF-40430 (eerdere versies). Fixversies voor de andere producten noemt de bron niet.</p>
+<p><strong>Probeer:</strong> heb je of een klant zo'n appliance, zet dan automatische patches aan en haal de admin-interface van het publieke internet.</p>
+<p><a href="https://www.bleepingcomputer.com/news/security/hackers-exploit-barracuda-email-security-gateway-flaws-to-get-root-access/">BleepingComputer</a></p>
+
+<h2>5. Meer dan 35.000 apps gebouwd met Grok stonden open voor iedereen</h2>
+<p>Onderzoekers van Claroc vonden dat 35.578 van de 37.571 online grok.me-apps (94,7%) zonder inloggen te openen waren. Ongeveer één op de tien bevatte gevoelige of interne data, van een ICU-patiënt tot een lijst met wachtwoorden in platte tekst. De oorzaak is vooral de standaardinstelling "Anyone with the link" in het publicatiescherm. Elke app krijgt een eigen hostnaam, en die komen in passive DNS-data terecht, dus ze zijn vindbaar.</p>
+<p>In de testapp van de auteur voegde de eigen inlogcode de bezoeker toe aan het team vóór de controle op lidmaatschap, zodat die altijd slaagde. SpaceXSI heeft de 24 apps van eigen medewerkers offline gehaald, de rest niet. Dit is het onderzoek van één partij, met schattingen voor het aandeel gevoelige data.</p>
+<p><strong>Probeer:</strong> dit geldt voor elke "bouw en publiceer"-tool met AI. Controleer wat de standaard toegangsinstelling is voordat je er iets intern mee deelt.</p>
+<p><a href="https://blog.claroc.io/ghostshares-grok-build-apps">Claroc: GhostShares</a></p>
+
+<h2>6. Modern Web Guidance 1.0: webkennis als skills voor je coding agent</h2>
+<p>Chrome heeft versie 1.0 van Modern Web Guidance uitgebracht. Het is een set skills met best practices en compatibiliteitsdata, zodat agents toegankelijker, sneller en veiliger webcode schrijven. Firefox en Edge doen nu mee. Installeren kan via de plugin-marketplaces van onder meer Claude Code, Codex, Cursor en Copilot, of met een npx-commando.</p>
+<p>Nieuw is een moderniseringsworkflow die je HTML, CSS, JavaScript en package.json scant op veilige upgrades. De eerste versie gebruikt statische analyse voor een beperkt aantal patronen, dus verwacht geen grote refactor.</p>
+<p><strong>Probeer:</strong> <code>npx modern-web-guidance@latest install</code> in een Next.js-project, en draai daarna <code>/modern-web-guidance Modernize the code in this directory</code>.</p>
+<p><a href="https://developer.chrome.com/blog/modern-web-guidance-v1">Chrome for Developers</a></p>
+
+<h2>7. DeepMind bewijst delen van de Signal-implementatie met AI</h2>
+<p>Met AlphaProof Code lieten agents op basis van Gemini Carbon meer dan zes miljoen regels Lean schrijven om beveiligingseigenschappen van Signals echte code te bewijzen. Mensen bepaalden wat bewezen moest worden en keurden de specificaties goed. Ongeveer 1% van de code werd voor handmatige review aangeduid. Het kostte vier weken. Wired meldt dat er geen nieuwe bugs uit kwamen.</p>
+<p>Het bewijs geldt alleen voor de eigenschappen die zijn gespecificeerd. DeepMind publiceert de verificatie-artefacten, maar zegt niet of AlphaProof Code zelf beschikbaar komt. Praktisch nog niet te gebruiken, wel een indicatie dat formele verificatie met agents haalbaar wordt.</p>
+<p><a href="https://deepmind.google/blog/introducing-alphaproof-code/">Google DeepMind</a></p>
+
+<h2>Snel nog even</h2>
+<ul>
+<li>OpenAI laat bedrijven profielen claimen, productfeeds delen en klantagents inzetten in ChatGPT, in beta. Ik kon de pagina zelf niet openen, dit komt uit de TLDR-samenvatting: <a href="https://openai.com/index/introducing-businesses-chatgpt/">OpenAI</a></li>
+<li>Microsoft MAI-Transcribe-2 is spraakherkenning met diarization en timestamps, voor $0,10 per audio-uur volgens Microsoft: <a href="https://microsoft.ai/news/mai-transcribe-2-is-the-fastest-most-accurate-and-cheapest-speech-recognition-model-in-the-world/">Microsoft AI</a></li>
+<li>Sentry combineert zijn CLI en MCP-server, zodat agents dezelfde authenticatie delen: <a href="https://x.com/zeeg/status/2120224571689484639">David Cramer op X</a></li>
+<li>Meta FAIR e-means is een drop-in vervanger voor k-means in Faiss, relevant voor wie met vectoren en clustering werkt: <a href="https://github.com/facebookresearch/faiss/tree/main/contrib/e_means">Faiss op GitHub</a></li>
+<li>Anthropic voegt spreadsheet-, whiteboard- en dashboard-artifacts en partner-connectors toe aan Claude: <a href="https://claude.com/resources/articles/more-ways-to-work-with-claude-sheets-whiteboards-and-interactive-connectors">Claude</a></li>
+<li>Anthropic is een IPO-roadshow gestart, met 825 miljoen aandelen tegen $70 tot $78: <a href="https://www.anthropic.com/news/roadshow-launch">Anthropic</a></li>
+</ul>
+</article>
+<p><a href="./">← Alle digests</a></p>
+</body>
+</html>
