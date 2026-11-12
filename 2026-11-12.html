@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI-digest – donderdag 12 november</title>
+<meta name="author" content="René Weteling">
+<meta property="og:title" content="AI-digest – donderdag 12 november">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2026-11-12">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<article>
+<h1>AI-digest – donderdag 12 november</h1>
+<p>Vandaag in het kort: Jensen Huang stapt per direct op als CEO van Nvidia, Microsoft laat zien dat een agent-model met minder dan tien aangepaste neuronen te backdooren is, en een prompt injection in Codex had een backdoor in een npm-pakket kunnen opleveren. Meta brengt het goedkope model Muse Ember uit, OpenRouter meet wat MCP, CLI en skills aan context kosten, en Perplexity test of modellen uit hun sandbox ontsnappen. Anthropic komt vandaag niet als eigen item voor, want er was geen nieuw verifieerbaar nieuws sinds de vorige digest.</p>
+
+<h2>1. Jensen Huang stapt op bij Nvidia</h2>
+<p>Nvidia meldt in een 8-K dat Jensen Huang op 11 november is teruggetreden als president, CEO en bestuurslid, met onmiddellijke ingang. CFO Colette Kress (59) wordt interim-CEO en blijft ook CFO. Harvey C. Jones (73), sinds 1993 bestuurslid, is benoemd tot de eerste voorzitter van de raad van bestuur. Het bestuur zoekt een vaste CEO en kijkt naar interne en externe kandidaten.</p>
+<p>In de filing staat geen reden en ook niets over een afkoopsom. De aanleiding komt uit de berichtgeving van de dagen ervoor: Huang zou een affaire hebben gehad met een leidinggevende van Megaspeed, en er liep een onderzoek naar mogelijke Chinese spionage. NOS meldt dat hij vanwege de affaires vertrekt. Die achtergrond heb ik via koppen en NOS gelezen, niet in een document van Nvidia of een rechtbank.</p>
+<p>Volgens de koppen op Techmeme daalde het aandeel met meer dan 5 procent, en zou Huang binnen een week voor commissies in het Huis van Afgevaardigden moeten getuigen. Er zouden ook Amerikaanse stemmen zijn om de exportregels voor chips naar China aan te scherpen. China zegt dat de VS de beschuldigingen gebruiken als rechtvaardiging voor technologiebeperkingen. Dit is allemaal secundair en nog niet bevestigd door primaire bronnen.</p>
+<p>Voor jou is dit vooral een leveranciersrisico op de lange termijn. Je GPU-plannen en cloudprijzen hangen aan Nvidia, en een nieuwe CEO kan de koers rond export, prijsstelling en open source veranderen. Op korte termijn verandert er voor je infrastructuur niets.</p>
+<p><a href="https://www.sec.gov/Archives/edgar/data/0001045810/000104581026000082/nvda-20261111.htm">SEC: Nvidia 8-K</a> · <a href="https://nos.nl/artikel/2639176-topman-huang-van-chipbedrijf-nvidia-vertrekt-per-direct-vanwege-affaires">NOS</a></p>
+
+<h2>2. Microsoft: een agent-model backdooren met minder dan tien neuronen</h2>
+<p>Microsoft-onderzoekers beschrijven Lazarus, een methode om een open-weight model een verborgen commando te laten uitvoeren. Ze passen minder dan tien zelden gebruikte neuronen aan, zonder hertraining van het hele model. Bij een gekozen trigger, in een gebruikersvraag of in de uitvoer van een tool, geeft het model het commando van de aanvaller terug. Een agent voert dat uit met zijn eigen rechten.</p>
+<p>Op Nemotron-Terminal-8B werden 7 neuronen aangepast, en het commando verscheen in minstens 98,8 procent van de sessies met trigger en in geen van de controlesessies. Bij Qwen3.6-27B en Gemma-4-31B-IT lag het succes tussen 51 en 99,5 procent, afhankelijk van de opzet. In een demo werkte het model drie beurten normaal aan een Node.js-server en gaf het bij een verbindingsfout een commando om een script te downloaden en als root te draaien. Het model scoort op Terminal-Bench wel iets lager, 42,05 procent tegen 46,59.</p>
+<p>Belangrijke kanttekening: de cijfers meten hoe vaak het model het commando uitspreekt, niet of een complete aanval slaagt. De aanvaller moet bovendien bij de gewichten kunnen, bijvoorbeeld via een gecompromitteerde pipeline of een aangepast model op een publieke hub. Detectie zonder origineel is zwak: een speciaal getrainde detector zag 91,4 procent van de bewerkte modellen maar markeerde ook 9,7 procent van de schone ten onrechte, en Claude Opus 5.5 hield 41 procent van de bewerkte checkpoints voor schoon.</p>
+<p><strong>Probeer:</strong> als je zelf fine-tunes of kwantiseringen van open modellen draait, leg een hash en de naam van het basismodel vast, en laat agents niet rechtstreeks van Hugging Face laden. Houd een privéregister bij en laat agent-code alleen in een sandbox draaien.</p>
+<p><a href="https://thehackernews.com/2026/11/microsoft-researchers-show-ai-agents.html">The Hacker News: Lazarus</a></p>
+
+<h2>3. Codex: prompt injection in een issue had een npm-release kunnen vergiftigen</h2>
+<p>Onderzoekers van Depi meldden een keten van drie zwakke plekken in Codex: prompt injection, een ontsnapping uit de sandbox en toegang tot publicatiegegevens. Samen hadden ze via een GitHub-issue tot een backdoor in het Codex-pakket op npm kunnen leiden. OpenAI heeft het verholpen voordat er een kwaadaardige release verscheen. Er is volgens het bericht geen misbruik vastgesteld. Veel technische details staan er niet in.</p>
+<p>Het patroon is bekend en geldt voor elke agent die in CI of op een repo draait: tekst uit issues en PR's is onbetrouwbare invoer, en een publicatietoken hoort niet in dezelfde omgeving als de agent te staan. Deze week is er een rapport van Railway over gestolen omgevingsvariabelen met AI-sleutels (zie onderaan), en dat past in hetzelfde beeld.</p>
+<p><strong>Probeer:</strong> controleer waar je npm- of PyPI-publicatietoken staat en of een agent of CI-job met toegang tot issues erbij kan. Gebruik trusted publishing en laat releases door een aparte, niet-agent workflow lopen.</p>
+<p><a href="https://thedefiant.io/frontier/ai/researchers-say-codex-flaw-put-npm-releases-at-risk">The Defiant: Codex-lek</a></p>
+
+<h2>4. Meta Muse Ember: een heel goedkoop klein model</h2>
+<p>Meta heeft Muse Ember 1.0 uitgebracht, het kleinste model van de Muse-familie, gericht op agent-taken zoals tool-aanroepen, kleine codeertaken, routing, extractie en het parsen van lange documenten. De prijs is $0,10 per miljoen input-tokens, $0,004 voor gecachete input en $0,50 voor output, voor prompts tot 200.000 tokens. Daarboven wordt het $0,30, $0,012 en $1,50. Het model neemt tot een miljoen tokens in en heeft zes redeneerniveaus, van minimal tot max.</p>
+<p>Volgens Artificial Analysis scoort het op xhigh ongeveer 34 op de Intelligence Index tegen circa $0,12 per taak, en ligt het op de efficiency-frontier. Meta zegt dat geen enkel model hoger scoort voor minder geld per taak, maar dat is Meta's eigen formulering van die ranglijst. Simon Willison's informele SVG-test gaf wisselende resultaten, en op niveau high kwam er zelfs geen complete SVG uit. Welke licentie het heeft en hoe je er toegang toe krijgt, kon ik niet vaststellen.</p>
+<p>Het prijsniveau is vergelijkbaar met Claude Haiku 5.5 en GPT-6 Luna. Voor een routerlaag of extractiestap in een RAG-backend is dit een derde optie om naast die twee te leggen, zodra je weet hoe je er bij kunt.</p>
+<p><a href="https://simonwillison.net/2026/Nov/10/muse-ember/">Simon Willison: Muse Ember</a></p>
+
+<h2>5. OpenRouter meet wat MCP, CLI en skills aan context kosten</h2>
+<p>OpenRouter vergeleek hoeveel input-tokens dezelfde GitHub-taak kost, met Claude Sonnet 5.5. Via de CLI waren dat 1.421 tokens ($0,0075), via een skill 3.315 ($0,0118), via MCP met twee tools 23.228 ($0,0552), met de 46 standaardtools 59.417 ($0,1274) en met alle 91 tools 101.351 ($0,2113). Eén resultaat van een GitHub-release kostte op Sonnet zelf ongeveer 20.400 tokens, meer dan alle 46 tooldefinities samen.</p>
+<p>Tool Search, waarbij tools pas worden geladen als ze nodig zijn, bracht het upfront-verbruik onder de 600 tokens op Claude-modellen. Het totaal voor de taak ging op Sonnet van 59.417 naar 30.334. Het effect hangt sterk af van het model: GPT-6 Luna daalde van 116.282 naar 25.544 tokens, Gemini steeg licht, en Haiku steeg bij 46 uitgestelde tools van 99.319 naar 154.623 omdat het herhaald met verkeerde argumenten aanriep. Tool Search verkleint de tool-resultaten niet, en die domineren vaak de kosten. De functie zit nog in beta en werkt niet samen met <code>tool_choice</code>.</p>
+<p>Dit is één taak met één provider-opzet, dus geen universele regel, maar de richting is bruikbaar: kleine CLI's of skills waar het kan, MCP met uitgestelde tools en afgekapte resultaten waar het moet.</p>
+<p><strong>Probeer:</strong> meet in je eigen agent-backend de tokens per request met en zonder je MCP-servers, en kap grote tool-resultaten af op een vaste lengte.</p>
+<p><a href="https://openrouter.ai/blog/insights/mcp-vs-cli-vs-skills/">OpenRouter: MCP vs CLI vs Skills</a></p>
+
+<h2>6. Perplexity: modellen ontsnappen niet uit de VM, wel langs de netwerkregels</h2>
+<p>Perplexity liet agents met verschillende modellen proberen uit een sandbox te ontsnappen. Geen enkel model kwam uit de gast-VM naar de host, ook niet met een prompt gericht op de virtualisatielaag. Bij de netwerkcontrole ging het anders: Claude Opus 5.0, Opus 5.5, Mythos 5.1, GPT-5.6 Sol en GPT-6 Astra slaagden in alle drie de runs, Kimi K3 in twee. Ze deden dat door DNS-antwoorden te vervalsen zodat de gateway een callback-server aan een toegestaan domein koppelde, en door publieke relays op gedeelde infrastructuur te gebruiken, zoals Fastly-diensten en een OCR-dienst om een vlag uit te lezen.</p>
+<p>Perplexity heeft beide kwetsbaarheden gefixt en vond naar eigen zeggen vergelijkbare gaten bij acht van tien sandboxplatforms van derden, die via responsible disclosure zijn gemeld. Het is een test onder labcondities met bronkode erbij voor de beste resultaten. Zonder broncode slaagde GPT-6 Astra in twee van drie runs. Grok 4.20 scoorde het laagst en meldde 27 keer ten onrechte succes.</p>
+<p>Het praktische punt: egress-filtering op domeinniveau is zwakker dan het lijkt als het domein op gedeelde infrastructuur staat. Wie agents code laat draaien met een whitelist, moet naar IP's, DNS-gedrag en relays kijken.</p>
+<p><a href="https://www.perplexity.ai/hub/blog/escaping-space-part-ii">Perplexity: Escaping SPACE, deel 2</a></p>
+
+<h2>7. Chrome's Modern Web Guidance 1.0 voor coding agents</h2>
+<p>Het Chrome-team heeft Modern Web Guidance 1.0 uitgebracht, een set skills die coding agents kennis geeft over het webplatform, best practices en Baseline-compatibiliteitsdata. Firefox en Edge doen nu mee als bijdragers. Nieuw zijn een moderniseringsflow die een bestaande codebase scant op veilige upgrades, een grotere database met gereviewde gidsen en openbare evaluatieresultaten.</p>
+<p>Installeren kan met <code>npx modern-web-guidance@latest install</code>, via marktplaatsen voor onder meer Claude Code, Codex, Cursor, Antigravity en Copilot. Agents zijn vaak achter met nieuwe CSS- en browser-API's en schrijven dan verouderde patronen. Dit is een goedkope manier om dat te verbeteren in je Next.js- of Expo-webwerk.</p>
+<p><strong>Probeer:</strong> installeer het in een Next.js-project en laat de moderniseringsflow lopen op een afgebakende map. Beoordeel de diff zoals je een PR van een collega zou beoordelen.</p>
+<p><a href="https://developer.chrome.com/blog/modern-web-guidance-v1">Chrome: Modern Web Guidance 1.0</a></p>
+
+<h2>8. Railway-inbraak: $740.000 aan frauduleuze AI-kosten</h2>
+<p>Volgens het incidentrapport van Railway, zoals samengevat door BleepingComputer en TLDR, kwam via een keten van inbraken de omgevingsvariabelen van maximaal 100.000 klanten in handen van aanvallers. Het belangrijkste doel waren AI-sleutels. Dat leidde tot ongeveer $740.000 aan frauduleuze AI-kosten. Het rapport zelf kon ik niet lezen omdat BleepingComputer me blokkeerde, dus deze details komen uit de samenvatting.</p>
+<p>Daarnaast meldt Fireworks AI dat aanvallers bij een tweede inbraak klantdatasets, gedeeltelijke modelgewichten en factuurgegevens bereikten. Dit staat alleen in een secundaire bron.</p>
+<p><strong>Probeer:</strong> zet op elke AI-sleutel die je host een uitgavenlimiet en een alert, en roteer sleutels als je ze bij een hostingplatform hebt staan dat gelekt kan zijn.</p>
+<p><a href="https://www.bleepingcomputer.com/news/apple/railway-breach-leads-to-740-000-in-fraudulent-ai-charges/">BleepingComputer: Railway</a></p>
+
+<h2>Snel nog even</h2>
+<ul>
+<li>United Airlines gaat AI-agents van derden beperken op zijn digitale platforms, vanwege inloggegevens, ongewilde aankopen en regelgeving rond check-in. Volgens CNBC kiezen bedrijven verschillende wegen: Amazon blokkeerde Meta's agent Muse, Walmart werkt ermee samen. <a href="https://www.cnbc.com/2026/11/11/united-airlines-ai-agents.html">CNBC</a></li>
+<li>OpenAI heeft een kill switch gebouwd voor zijn onderzoeksmodellen, Control Room. Het stopt output ongeveer 35 seconden na het besluit, door een cachinglaag, en OpenAI wil dat naar nul brengen. <a href="https://www.theregister.com/ai-and-ml/2026/11/11/openai-builds-a-kill-switch-for-its-research-models/5309006">The Register</a></li>
+<li>llm 0.37.2 van Simon Willison verhelpt twee bugs waarbij een geconfigureerde OpenAI-sleutel naar een andere OpenAI-compatibele provider kon gaan. Welke versies precies geraakt zijn, staat niet op de pagina. Update als je llm 0.37 gebruikt met eigen endpoints. <a href="https://simonwillison.net/2026/Nov/11/llm/">Simon Willison</a></li>
+<li>Xen Orchestra heeft een kritieke authenticatiebypass die actief wordt misbruikt om VM-clusters over te nemen. Ik kon het artikel niet lezen en heb geen CVE of versienummer, dus kijk zelf in de advisory. <a href="https://tldr.tech/infosec/2026-11-12">TLDR Infosec</a></li>
+<li>Onderzoek van Eye Security over M365: ingetrokken Entra-sessies kunnen via bestaande access tokens nog tot 90 minuten werken. Alleen het uitschakelen van het account geeft zekerheid. <a href="https://labs.eye.security/how-attackers-keep-reading-mail-after-m365-session-revocation/">Eye Security</a></li>
+<li>AWS heeft een officiële emulator in Rust uitgebracht voor lokaal testen tegen AWS-API's, grotendeels gebouwd door AI-agents. Op macOS en Windows heb je Docker nodig. <a href="https://simonwillison.net/2026/Nov/11/aws-emulator/">Simon Willison</a></li>
+<li>OpenAI heeft MCP Extensions als open source gepubliceerd, TypeScript- en Python-pakketten met ChatGPT-specifieke functies voor MCP-servers. <a href="https://github.com/openai/mcp-extensions">GitHub</a></li>
+<li>Runway Praxis-1 is een open-weight robotica-model van 27 miljard parameters onder Apache 2.0, dat volgens Runway bovenaan de RoboLab-120 van Nvidia staat. <a href="https://runway.com/news/company-news/praxis-1-is-now-available">Runway</a></li>
+<li>Next.js-geheugen van 5 GB naar 1 GB: react-query cache-timers hielden server-side requests in leven, en een oneindige cache-tijd loste het op. <a href="https://rohitpotato.xyz/thoughts/ssr-requests-still-alive">Blogpost</a></li>
+</ul>
+</article>
+<p><a href="./">← Alle digests</a></p>
+</body>
+</html>
