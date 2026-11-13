@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI-digest – vrijdag 13 november</title>
+<meta name="author" content="René Weteling">
+<meta property="og:title" content="AI-digest – vrijdag 13 november">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2026-11-13">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<article>
+<h1>AI-digest – vrijdag 13 november</h1>
+<p>Vandaag in het kort: Google brengt Gemini 4 Hydrogen uit als snel en goedkoop agent-model, een kritieke Apache-lek in mod_http2 vraagt vandaag om een patch, en een campagne heeft CI-geheimen gestolen uit duizenden GitHub-repo's. Nvidia zoekt een opvolger voor Huang, een analist beweert dat Chinese labs Blackwell-chips gebruikten, en Microsoft vond met AI 59 kernelbugs. Tweakers, The Verge, Axios en The Hill waren niet bereikbaar, dus de Nvidia-berichten staan op koppen van Techmeme.</p>
+
+<h2>1. Gemini 4 Hydrogen: snel model voor code en agents</h2>
+<p>Google heeft op 12 november Gemini 4 Hydrogen uitgebracht, met model-ID <code>gemini-4-hydrogen</code>. Het is beschikbaar in de Gemini API, AI Studio, Android Studio en Antigravity, en voor gewone gebruikers in de Gemini-app en Google Search. De prijs is $1,50 per miljoen input-tokens en $7,50 per miljoen output-tokens, vlak over het hele contextvenster van 1 miljoen tokens. Er is een nieuw denkniveau xhigh naast low, medium en high.</p>
+<p>Volgens Google scoort het 51 op de Artificial Analysis Intelligence Index (54 op xhigh), tegen 50 voor Gemini 4 Argon. Op Terminal-Bench 4.1 haalt het 57 procent en het werkt ongeveer 2,5 keer sneller dan Gemini 3.8 Flash. Dit zijn Google's eigen cijfers, behalve de index, en ik heb ze niet zelf gereproduceerd.</p>
+<p>Interessanter voor een dagelijkse ontwikkelaar is de Orchestrator in Antigravity. Die wisselt binnen één sessie tussen modellen. Carbon kan coördineren, terwijl Hydrogen als werker en verifier draait in geïsoleerde werkruimtes. Google meldt bijna dezelfde taaksucces als Carbon met ongeveer 24 procent minder quota. Het patroon duur model plant, goedkoop model voert uit, is ook in je eigen agent-backend na te bouwen.</p>
+<p><strong>Probeer:</strong> zet Hydrogen in een eigen evaluatie naast je huidige worker-model voor tool-aanroepen en kleine refactors. Kijk naar kosten per geslaagde taak, niet alleen naar de score.</p>
+<p><a href="https://blog.google/innovation-and-ai/models-and-research/gemini-models/introducing-gemini-4-hydrogen/">Google: Gemini 4 Hydrogen</a></p>
+
+<h2>2. Apache mod_http2: kritieke kwetsbaarheid, patch naar 2.4.71</h2>
+<p>CVE-2026-119618 zit in mod_http2 van Apache HTTP Server en heeft CVSS 9.8. Aangetast zijn versies 2.4.55 tot en met 2.4.70 met HTTP/2 aan, en losse mod_h2-builds 2.0.8 tot en met 2.0.42. Een niet-geauthenticeerde aanvaller kan via een geheugenfout mogelijk code uitvoeren. De fix zit in Apache 2.4.71.</p>
+<p>Over misbruik zijn de bronnen het oneens. Red Hat zegt dat publiek onderzoek een betrouwbare exploit voor de standaardconfiguratie heeft laten zien, maar noemt niets concreets. Wiz zegt dat er geen exploit is en geen misbruik is gemeld. Behandel het dus als urgent. Apache biedt geen workaround, maar Wiz adviseert <code>Protocols http/1.1</code>, zonder h2 en h2c, op serverniveau en in elke virtual host. Debian bookworm en trixie staan volgens het artikel als kwetsbaar zonder fix, en de standalone mod_h2 krijgt geen fix omdat de repo is gearchiveerd.</p>
+<p>De melding kwam op 26 oktober van Anthropic's OSS Scanner, en ook twee onderzoekers van Google Cloud meldden het. Voor jou telt vooral dat Docker-images met Apache vaak h2 aan hebben.</p>
+<p><strong>Probeer:</strong> draai <code>apachectl -M | grep http2</code> en <code>httpd -v</code> op je servers en in je base-images. Zet h2 uit waar je nog niet kunt updaten.</p>
+<p><a href="https://thehackernews.com/2026/11/critical-apache-http2-flaw-could-let.html">The Hacker News: Apache HTTP/2</a></p>
+
+<h2>3. wfx-loot: gestolen GitHub-accounts duwen een CI-geheimenstealer naar duizenden repo's</h2>
+<p>Aikido beschrijft een campagne die op 10 november begon. Met gestolen GitHub-gegevens openen aanvallers een pull request met de titel <code>docs: dependency audit notes</code> om schrijfrechten te testen. Daarna voegen ze een shellscript van ongeveer 1.500 regels toe, via een bestaande workflow, een <code>postinstall</code>-hook in <code>package.json</code> of een tijdelijke workflow op een <code>chore/</code>-branch. Binnen ongeveer een minuut wordt alles teruggedraaid en worden de runlogs verwijderd.</p>
+<p>Het script verzamelt Actions-secrets, <code>GITHUB_TOKEN</code>, OIDC-tokens, cloudgegevens en AI-sleutels, en misbruikt die voor toegang tot AWS, GCP, Azure, Vault en Kubernetes. Het kan ook statuschecks vervalsen en AWS-vertrouwensbeleid openzetten. Aikido telt 4.837 gecompromitteerde accounts die in 61.764 repo's probeerden, en minstens 1.835 repo's waarvan de gegevens zijn weggestuurd. Een ontbrekend runnummer in je workflowgeschiedenis kan het enige spoor zijn.</p>
+<p>Besmette pakketten zijn onder meer Packagist <code>digitalelvis/neuronai-studio</code> 3.14.3 en twee Go-versies van <code>github.com/onuragtas/docker-env</code>. Dit is het bedrijfsbericht van een beveiligingsleverancier, dus de aantallen zijn hun meting.</p>
+<p><strong>Probeer:</strong> zoek in je repo's naar die PR-titel, <code>wfx-docs</code>-branches en <code>.ci-*.sh</code>-bestanden, en controleer AWS-vertrouwensbeleid op <code>"AWS": "*"</code>. Als de payload gelopen heeft, roteer dan alles wat die workflow kon lezen, ook AI-sleutels.</p>
+<p><a href="https://www.aikido.dev/blog/compromised-github-accounts-push-ci-secret-stealer-to-tens-of-thousands-of-repositories">Aikido: wfx-loot</a></p>
+
+<h2>4. Nvidia zoekt een opvolger, ook Arm-baas Haas genoemd</h2>
+<p>Na het vertrek van Jensen Huang, gisteren in deze digest, gaat de berichtgeving over wie hem opvolgt. Volgens de FT, zoals samengevat in de kop op Techmeme, heeft het bestuur Arm-CEO Rene Haas benaderd. Colette Kress is interim-CEO, wat Nvidia zelf bevestigt. Ik kon de FT-tekst niet lezen, dus dit staat op één bron en één kop.</p>
+<p>Verder meldt Axios volgens Techmeme dat de aandelen in de omgeving van Nvidia dalen, en The Hill schrijft over een verwijt tussen minister Bessent en minister Lutnick rond een zwarte lijst voor Nvidia-chips. CNN meldt dat Amerikaanse functionarissen het oneens zijn over de rol van een vrouw die door China zou zijn ingezet. Reuters meldt, naar de New York Times, dat Trump Huang had aangespoord om te vechten voor zijn baan. Ook dit heb ik alleen via koppen gezien.</p>
+<p>Voor jou verandert er vandaag niets aan GPU-prijzen of levertijden. Het blijft een onzekerheid voor wie plannen maakt rond Nvidia-hardware en exportregels voor de komende jaren.</p>
+<p><a href="https://www.techmeme.com">Techmeme</a> · <a href="https://nvidianews.nvidia.com/news/nvidia-announces-ceo-transition">Nvidia</a></p>
+
+<h2>5. Gebruikten Chinese labs Blackwell-chips? Een nieuwe methode zegt van wel</h2>
+<p>Een analist beschrijft een methode om uit de gepubliceerde gewichten van open modellen af te leiden op welke GPU ze zijn geïnitialiseerd. PyTorch verdeelt de pseudowillekeurige beginwaarden over GPU-threads, en het aantal streaming multiprocessors laat daar een patroon achter. Hopper heeft 132 SM's, Blackwell B200 en B300 148, en GB200 en GB300 152.</p>
+<p>Volgens de analyse tonen zes modellen van vier Chinese labs een Blackwell-patroon: DeepSeek-V4-Flash en V4-Pro, Kimi K3 en K3.1-Pro, MiniMax-M3 en Ling-3.1-flash. Eerdere modellen van die labs tonen Hopper. De auteur zegt dat de methode 24 modellen met bekende hardware correct herkende. De schatting is ruim 12.000 Blackwell-GPU's over vijf runs, met een grote marge.</p>
+<p>De kanttekeningen zijn groot. Het meet de initialisatie, niet de hele training. Het bewijst niet waar de chips stonden, hoe ze zijn verkregen of dat exportregels zijn overtreden, en het is werk van één auteur dat niet is gereviewd. Een AMD MI300X kan in theorie hetzelfde patroon geven. Toch is het een zichtbaar dossier in de exportdiscussie, die nu al onder spanning staat.</p>
+<p><a href="https://unemploymentlabs.com/checkpoint-forensics">Checkpoint forensics</a></p>
+
+<h2>6. Perplexity Decider: een klein classificatiemodel in plaats van een LLM-judge</h2>
+<p>Perplexity heeft Decider v1.3 en Decider Flash v1.3 uitgebracht. Je geeft een invoer en vragen met vaste antwoorden, en je krijgt in één forward pass een kansverdeling per vraag. Daarnaast kan het tekstspans aanwijzen voor entiteiten, PII en extractieve vragen. Decider is gebaseerd op Qwen3.8-27B en de Flash-variant op Qwen3.5-4B. De gewichten staan onder een Apache-licentie op Hugging Face, en het model is ook via OpenRouter en de Perplexity Decisions API te gebruiken.</p>
+<p>Perplexity meldt 91,6 procent nauwkeurigheid op 63 queryclassificatietaken en een nDCG@10 van 83,99 voor reranking op 72 taken. Voor een miljoen productieverzoeken noemt het $26,47 voor Decider en $13,24 voor Flash, tegen $312 tot $349 voor twee grotere LLM's. Dat is Perplexity's eigen vergelijking, zonder latentiemeting.</p>
+<p>Voor een RAG-backend is dit precies het soort stap waar je nu waarschijnlijk een duur model voor gebruikt: routeren, labelen, filteren, PII detecteren. Google noemt trouwens ook een Gemini Decisions API, dus de richting is duidelijk.</p>
+<p><strong>Probeer:</strong> neem 500 echte queries uit je eigen systeem met een bestaand label en laat Flash het labelen. Vergelijk met je huidige model op nauwkeurigheid en kosten.</p>
+<p><a href="https://www.perplexity.ai/hub/blog/perplexity-decider">Perplexity: Decider</a></p>
+
+<h2>7. Microsoft vond met AI 59 kernelbugs, en het bottleneck is repareren</h2>
+<p>Het FORGE Lab van Microsoft beschrijft hoe het met AI-modellen 26.502 ruwe bevindingen terugbracht tot 59 openbare meldingen bij de Linux-kernel. Daaruit kwamen 33 CVE's, waarvan 24 hoog of kritiek, en acht bevestigde lokale root-exploits in een lab. De bugs zaten gemiddeld 8,1 jaar in de kernel en één minstens 21 jaar. 38 fixes zijn inmiddels gemerged.</p>
+<p>Voor het scannen ging 71 procent van de tokens naar Sonnet 4.6, de rest naar GPT-5.4 en GPT-5.5. Voor het reproduceren van exploits werd vooral GPT-5.5 gebruikt. Het opvallendste cijfer is niet de vondst maar de inspanning: ruim vier mensmaanden om 59 bugs te melden. De auteurs concluderen dat het repareren en valideren de beperking is, en dat meer tokens alleen niet tot veiliger systemen leidt.</p>
+<p>Dat is bruikbaar voor je eigen codebases. AI-scans leveren veel kandidaten, en de waarde zit in triage met bewijs, zoals een werkende reproductie, voordat een mens ernaar kijkt.</p>
+<p><a href="https://www.microsoft.com/en-us/security/blog/2026/11/11/lessons-from-59-linux-kernel-bug-reports/">Microsoft: 59 kernel bug reports</a></p>
+
+<h2>8. Self-hosted Claude Managed Agents in private beta</h2>
+<p>Anthropic laat bedrijven de volledige Managed Agents-dienst in hun eigen cloud of on-premises draaien. Jij beheert de agent-harness, de sandboxes, de database met sessiegeschiedenis en je geheimenbeheer. Verzoeken aan Claude kunnen naar Anthropic, Amazon Bedrock, Google's agentplatform, Microsoft Foundry of je eigen gateway. Je kunt netwerktoegang beperken met een lijst met toegestane hosts, en sessies exporteren via OpenTelemetry.</p>
+<p>Het is een private beta, aan te vragen via je Anthropic-accountteam, en het artikel noemt geen technische vereisten of limieten. Voor teams met strenge dataresidentie-eisen haalt dit een bezwaar weg. Voor kleinere teams is het vooral een aanwijzing dat de scheiding tussen harness en sandbox een gangbaar ontwerp wordt, wat je ook in je eigen agent-backend kunt overnemen.</p>
+<p><a href="https://claude.com/resources/articles/self-hosted-claude-managed-agents">Claude: self-hosted Managed Agents</a></p>
+
+<h2>9. Replit Agent kan inkopen doen en Google Ads-campagnes opzetten</h2>
+<p>Replit lanceerde op 12 november twee functies. Agentic Commerce koopt zakelijke benodigdheden via Link van Stripe en Visa, voor Core- en Pro-gebruikers in de VS en alleen voor eenmalige aankopen. Agentic Ads bouwt Google Ads-campagnes voor Search, YouTube, Display en Discover, voor Pro-gebruikers wereldwijd, en jij beoordeelt en lanceert ze.</p>
+<p>De veiligheidsmaatregelen zijn concreet: de agent werkt in een geïsoleerde browsersessie en stopt bij de checkout. Shell en algemeen browsen zijn dan uitgeschakeld, en de goedkeuring van het eindbedrag wordt in code afgedwongen, niet aan het model overgelaten. Een bestedingslimiet noemt Replit niet. Dat contrasteert met United Airlines, dat gisteren aankondigde agents van derden te beperken. Wie betalingen voor agents bouwt, moet dezelfde vraag beantwoorden: waar dwing je goedkeuring af, en in welke laag.</p>
+<p><a href="https://replit.com/blog/replit-agent-ads-commerce">Replit: Agent commerce en ads</a></p>
+
+<h2>Snel nog even</h2>
+<ul>
+<li>A2UI 1.0 is een open protocol waarmee agents interactieve schermen beschrijven die elke app met eigen componenten tekent. Er zijn renderers voor React, Angular, Lit, Flutter en SwiftUI, en de web-renderers werken in MCP Apps. Android staat nog op 0.9.1. <a href="https://developers.googleblog.com/a2ui-10-build-delightful-fast-reliable-agentic-experiences/">Google</a></li>
+<li>Rust 1.100.0 stabiliseert het never-type (<code>!</code>) en de kern van de Allocator-API. Cargo meldt nu ongebruikte dependencies en kent <code>global-min-publish-age</code>, een cooldown tegen net gepubliceerde versies, wat past bij de supply-chain-aanvallen van deze week. <a href="https://blog.rust-lang.org/2026/11/12/Rust-1.100.0/">Rust</a></li>
+<li>Red Hat Quay heeft een kritieke fout (CVE-2026-123710, CVSS 9.8): een gebruiker kan een niet-verlopende ondertekeningssleutel plaatsen die toegang tot alle repo's geeft. De fixes zijn op 11 november gemerged, een release ontbreekt nog. Beperk toegang tot de sleutelbeheerdienst. <a href="https://www.securityweek.com/critical-red-hat-quay-vulnerability-could-expose-private-container-images/">SecurityWeek</a></li>
+<li>Google's Agent Anomaly Detection (private preview) markeerde 87 procent van de uitgevoerde schadelijke instructies op vijf externe benchmarks, met 2 tot 4 procent valse alarmen. Bij vergiftigd geheugen ving het maar 4 van 18 sessies. <a href="https://developers.googleblog.com/how-agent-anomaly-detection-scores-on-benchmarks-we-didnt-write/">Google</a></li>
+<li>Claude Meetings (beta) laat Claude als zichtbare deelnemer meedoen aan Google Meet, voor Team- en Enterprise-plannen. Er wordt een transcript bewaard, geen audio, en bij externe gasten verlaat Claude standaard het gesprek. <a href="https://support.claude.com/en/articles/18325154-use-claude-meetings">Claude Help</a></li>
+<li>Meta's Muse kan nu voor betalende abonnees in de VS bedrijven bellen, vanaf $20 per maand. Volgens TechCrunch hangen veel bedrijven op zodra ze merken dat het een AI is. <a href="https://techcrunch.com/2026/11/12/muse-can-now-place-calls-to-u-s-businesses-if-you-pay/">TechCrunch</a></li>
+<li>Qwen Code is een open-source coding agent met terminal, editor, desktop en browser, SDK's en MCP-ondersteuning. Ik heb het niet getest. <a href="https://github.com/QwenLM/qwen-code">GitHub</a></li>
+<li>Anthropic is volgens SiliconANGLE op 10 november met de roadshow voor de beursgang gestart. De bronnen noemen uiteenlopende waarderingen en opbrengsten, dus ik noem geen bedrag. Axios koppelt het aan de commotie rond Nvidia. <a href="https://www.axios.com/2026/11/13/anthropic-ipo-nvidia-jensen-huang">Axios (alleen kop gezien)</a></li>
+<li>Firefox 145 laat browsers minder uniek lijken door onder meer het aantal CPU-kernen te beperken, op basis van onderzoek met ongeveer 25 miljoen gebruikers. <a href="https://blog.mozilla.org/security/2026/11/10/open-research-stronger-privacy-making-firefox-users-harder-to-fingerprint/">Mozilla</a></li>
+</ul>
+</article>
+<p><a href="./">← Alle digests</a></p>
+</body>
+</html>
