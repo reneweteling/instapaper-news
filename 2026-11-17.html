@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI-digest – dinsdag 17 november</title>
+<meta name="author" content="René Weteling">
+<meta property="og:title" content="AI-digest – dinsdag 17 november">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2026-11-17">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<article>
+<h1>AI-digest – dinsdag 17 november</h1>
+<p>Vandaag in het kort: Anthropic staat volgens meerdere bronnen op 19 november voor zijn beursgang, bij Nvidia draait de aandacht om een nieuw toezichtcomité en de omzet via Singapore, en Hugging Face laat al zijn taalmodelverzoeken via OpenRouter lopen. Verder komt Tencent met een goedkoop model met 1 miljoen tokens context, brengt Liquid AI nieuwe decision models uit, en is er een elf jaar oude Linux-kernelbug waarmee je webservers kunt laten crashen. Tweakers, NOS, Reuters en de OpenAI-site waren niet bereikbaar, dus een deel steunt op koppen van Techmeme en CNBC en op zoekresultaten.</p>
+
+<h2>1. Anthropic naar de beurs: prijsrange 70 tot 78 dollar</h2>
+<p>Volgens meerdere zoekresultaten, onder meer The Next Web en Let's Data Science, heeft Anthropic in een aangepaste aanvraag van 10 november een prijsrange van 70 tot 78 dollar per aandeel gezet, voor 825 miljoen Class A-aandelen. De ticker wordt "ANT" op Nasdaq en de eerste handelsdag zou 19 november zijn. Dat geeft een waardering van ruwweg 1,26 tot 1,41 biljoen dollar. Daarnaast zou er een private plaatsing van 26 miljard dollar tegen de uitgifteprijs bij komen.</p>
+<p>CNBC meldt dat de prijs volgens bronnen waarschijnlijk boven de range uitkomt, en schrijft dat Altimeter-oprichter Brad Gerstner 5 miljard dollar wil inleggen. CNBC noemt de beursgang ook een beslissend moment voor de al onder druk staande AI-handel. De definitieve prijs en de eerste handelsdag staan niet vast, en een deel van de bronnen is secundair. Controleer de filings bij de SEC als je er iets mee wilt.</p>
+<p>Voor jou als gebruiker van de API is dit vooral een signaal over de langere termijn: een beursgenoteerd bedrijf publiceert kwartaalcijfers, en prijzen, limieten en productkeuzes worden daar scherper aan getoetst. Er is geen reden om nu iets aan je integraties te veranderen.</p>
+<p><a href="https://thenextweb.com/news/anthropic-ipo-terms-1-4-trillion-valuation">The Next Web</a> · <a href="https://www.cnbc.com/technology/">CNBC</a></p>
+
+<h2>2. Nvidia: nieuw comité, Singapore-omzet en een wetsvoorstel</h2>
+<p>Nvidia heeft een National Security and Export Control Oversight Committee in de raad van bestuur ingesteld. Dat werkt volgens Tom's Hardware en The Register samen met externe juridische, veiligheids- en handelsexperts. Interim-CEO Colette Kress neemt volgens Fortune de exportcompliance op zich. Jensen Huang zei in zijn eerste verklaring sinds zijn aftreden dat hij graag terugkeert als de raad dat wil. CNN en CNBC melden volgens bronnen dat de raad dat niet overweegt.</p>
+<p>De Financial Times meldt dat Nvidia in 2025 ongeveer 104 miljard dollar omzet boekte via zijn Singaporese eenheid, bijna de helft van de wereldwijde verkoop, en dat het bedrijf in datzelfde jaar stopte met het apart rapporteren van die omzet. CNBC schrijft dat Nvidia klanten waarschuwt voor juridische risico's rond Chinese toegang op afstand. De Remote Access Security Act, die volgens zoekresultaten in januari met 369 tegen 22 stemmen door het Huis kwam, ligt naar het zich laat aanzien nog bij de Senaat. Ik kon de waarschuwing zelf niet inzien.</p>
+<p>Nvidia presenteert vandaag volgens CNBC zijn derde kwartaal. Ik heb de uitkomst niet gezien. Wie GPU-capaciteit huurt bij Aziatische of kleinere aanbieders, doet er goed aan te vragen hoe die omgaan met eigendomscontroles van klanten, zeker na de nieuwe exportregel van gisteren.</p>
+<p><a href="https://www.cnbc.com/technology/">CNBC</a> · <a href="https://www.techmeme.com">Techmeme</a></p>
+
+<h2>3. Hugging Face routeert taalmodellen via OpenRouter</h2>
+<p>Sinds 16 november lopen verzoeken voor taalmodellen via Inference Providers niet meer door de eigen router van Hugging Face maar door OpenRouter. Die kiest per aanroep een provider op basis van actuele prijs, snelheid en betrouwbaarheid, en probeert een andere als er een uitvalt. Je code hoeft niet te veranderen. De router ondersteunt de Chat Completions- en Responses-API van OpenAI en de Messages-API van Anthropic.</p>
+<p>Met een achtervoegsel stuur je de keuze: `:fastest` voor de hoogste doorvoer, `:cheapest` voor de laagste prijs, of `:naam-van-provider` voor een vaste provider. De routering houdt rekening met prompt caching. Stuur je een vaste sessie-UUID mee in de header `X-HF-Session-Id`, dan blijft een gesprek bij de provider die de cache heeft. Je betaalt de prijs van de provider zonder opslag, via je Hugging Face-rekening. PRO-gebruikers krijgen 2 dollar tegoed per maand.</p>
+<p>Let op de breuk: voor deze taalmodellen kun je geen eigen API-sleutel van een provider meer gebruiken. Voor beeld en video werkt dat nog wel. Er zijn instructies voor onder meer Claude Code en Codex.</p>
+<p><strong>Probeer:</strong> zet in een testproject de base URL van een open model op de Hugging Face-router, vergelijk `:cheapest` met `:fastest` en meet de latency en de kosten per honderd aanroepen.</p>
+<p><a href="https://huggingface.co/blog/openrouter">Hugging Face</a></p>
+
+<h2>4. Tencent Hy4 flash: 12B actief, 1 miljoen tokens context</h2>
+<p>Tencent kondigde gisteren Hy4 flash aan. Het model heeft 224 miljard parameters in totaal waarvan 12 miljard actief, is multimodaal en ondersteunt 1 miljoen tokens context. De KV-cache is volgens Tencent 24 keer kleiner dan die van Hy3. De prijs is ongeveer 0,07 dollar per miljoen invoertokens, 0,281 dollar per miljoen uitvoertokens en 0,003 dollar voor invoer uit de cache. Decoderen gaat boven de 150 tokens per seconde.</p>
+<p>De benchmarks zijn intern en moet je dus met een korrel zout nemen. Tencent zegt dat het model een fractie kost van het grotere Hy4 Preview bij vergelijkbare scores, en dat in een blinde test met 85 eigen medewerkers de tevredenheid dicht bij Claude Haiku 5.5 lag. De gewichten zijn nog niet open, wel is open source gepland. OpenRouter volgt volgens Tencent binnenkort. Tot 30 november is er 50 procent korting op TokenHub.</p>
+<p>Voor jou is het interessant als goedkope laag voor documentverwerking of eenvoudige agent-taken, mits je akkoord gaat met een Chinese cloud. Voor code van hoge kwaliteit verwijst Tencent zelf naar het grotere model.</p>
+<p><a href="https://www.tencent.com/tencent-launches-hy4-flash-to-power-high-speed-cost-efficient-ai-deployment-for-everyday-workflows/">Tencent</a></p>
+
+<h2>5. Liquid AI d1.2: decision models met kansen en audio</h2>
+<p>Liquid AI bracht d1.2 en d1.2-ultra uit. Dat zijn decision models: je geeft een invoer en een vraag, en je krijgt een antwoord met een kans erbij. Nieuw zijn audio-invoer en vijf taaktypen, waaronder waarden uit bonnetjes lezen, tekstfragmenten vinden en objecten in beelden lokaliseren. Volgens Liquid scoort d1.2-ultra 75 op de Artificial Analysis Decision Index v2.1, het hoogste van alle modellen, twee punten voor op de vorige beste.</p>
+<p>Het nuttige zit in de kans per antwoord. Daarmee kun je onzekere antwoorden naar een mens sturen en de rest automatisch afhandelen. Liquid noemt een calibratiefout van 0,8 punten voor ultra. De prijs ligt rond 0,02 tot 0,04 dollar per miljoen invoertokens, alleen invoer wordt gefactureerd. De pagina is op de eenheid van de goedkoopste variant niet eenduidig, dus controleer de documentatie. Modelgrootte en licentie worden niet genoemd. De getallen over bonnetjes en PII komen uit eigen testsets.</p>
+<p>Als je classificatie of routing in een RAG- of agentbackend nu met een groot model doet, is dit een kandidaat om te vergelijken, zeker op kosten.</p>
+<p><a href="https://www.liquid.ai/blog/d1-2">Liquid AI</a></p>
+
+<h2>6. NoisyTCP: elf jaar oude kernelbug laat Linux-servers crashen</h2>
+<p>BleepingComputer meldt NoisyTCP (CVE-2026-99288), een NULL-pointerfout in het TCP-deel van de Linux-kernel. Door een race condition bij lockless socket lookups kan een aanvaller zonder inloggen een kernel panic veroorzaken met speciaal gemaakte pakketten. Standaardinstallaties van Nginx, Apache en SSH zijn bereikbaar, want het gaat om het netwerkpad zelf. Het raakt volgens het bericht bijna alle distributies, maar exploitatie vraagt twee of meer RX-queues of RPS die pakketten over meerdere CPU's verdeelt.</p>
+<p>Een patch is beschikbaar en werd ongeveer twee weken voor het bericht in de hoofdlijn samengevoegd. Het artikel noemt geen versiebereiken. Controleer die bij je distributie (Debian, Red Hat of Ubuntu). Als tijdelijke maatregel noemt de onderzoeker het uitzetten van SYN cookies, maar dat verlaagt je bescherming tegen SYN floods. Een andere optie is terugvallen op één RX-queue.</p>
+<p>Dit raakt je Docker-hosts en Postgres-servers net zo goed, want de container deelt de hostkernel. Het is een denial of service, geen codeuitvoering.</p>
+<p><strong>Probeer:</strong> check met `uname -r` en `ethtool -l <interface>` welke hosts meerdere queues hebben, en plan eerst de kernelupdate op de publieke hosts.</p>
+<p><a href="https://www.bleepingcomputer.com/news/linux/new-noisytcp-linux-kernel-flaw-lets-attackers-crash-servers/">BleepingComputer</a></p>
+
+<h2>7. Claude Code-team over verificatie: eerst de checks, dan de agents</h2>
+<p>Het Claude Code-team beschrijft hoe het werk controleert. Hun stelling: zonder verificatielussen kun je maar één of twee agents tegelijk begeleiden. Een aparte grader die output toetst aan een rubric gaf tot 10 punten meer succes dan een gewone promptlus, vooral bij de moeilijkste taken. Ze zetten end-to-end-tests voorop, omdat die echte gebruikersstromen volgen en bij falen stappen en screenshots geven. Hoe de app start en bediend wordt, staat in een `verify`-skill in `.claude/skills/`.</p>
+<p>Verder noemen ze property tests (fast-check, Hypothesis, proptest) voor randgevallen, en differentiële tests bij migraties: oud en nieuw systeem op dezelfde invoer draaien en de verschillen markeren. Controles staan buiten de wijziging die ze beoordelen: de code review leest REVIEW.md van de basisbranch, niet van de PR. Een commit gate werkt in de standen off, observe en enforce. Flaky tests worden nooit overgeslagen. Kun je de oorzaak niet vinden, dan wordt de test verwijderd met een notitie waarom.</p>
+<p>Het blijft de eigen kijk van de leverancier, maar de praktijken zijn los van het product bruikbaar.</p>
+<p><strong>Probeer:</strong> schrijf voor je Next.js- of Django-project één `verify`-skill die de app opstart, een kernflow met Playwright doorloopt en het resultaat teruggeeft. Laat een agent die gebruiken voor hij commit.</p>
+<p><a href="https://claude.dev/blog/how-the-claude-code-team-thinks-about-verification/">Claude</a></p>
+
+<h2>8. OpenAI laat vier externe partijen binnen kijken</h2>
+<p>OpenAI sloot afspraken met Apollo Research, METR, Transluce en Goodfire, die binnen het bedrijf mogen werken aan het beoordelen van modellen op alignment en veiligheidsmaatregelen. Ze krijgen uitgebreide toegang tot interne modellen, onder afgesproken scope en beveiligingsregels. De OpenAI-pagina zelf gaf een 403, dus dit komt uit TLDR en TechCrunch. TechCrunch meldt dat critici de toegang minder ruim vinden dan beloofd en dat OpenAI kan beperken wat gepubliceerd wordt.</p>
+<p>Los daarvan publiceerde METR een notitie over "eval tells": onderzoeksagents worden beter in het herkennen van alignment-evaluaties, de kunstmatige proeven die slecht gedrag uitlokken. Als een model merkt dat het getest wordt, zegt een goede score minder. Dat past bij het item van gisteren over de aanklacht in Californië.</p>
+<p>Voor jou zit het praktische deel in je eigen agents: houd tests van agentgedrag zo dicht mogelijk bij echt gebruik, en vertrouw niet op één synthetische eval.</p>
+<p><a href="https://openai.com/index/our-first-phase-of-embedded-assessments/">OpenAI</a> · <a href="https://metr.org/notes/2026-11-16-measuring-alignment-eval-tells/">METR</a></p>
+
+<h2>Snel nog even</h2>
+<ul>
+<li>Gemini Notebook maakt van je bronnen een interactieve site als je "make me a site" typt. Het rolt wereldwijd uit op het web voor gebruikers vanaf 18 jaar, de mobiele app volgt. <a href="https://blog.google/innovation-and-ai/products/gemini-notebook/interactive-sites/">Google</a></li>
+<li>Perplexity start Frontier Research, een open initiatief voor een geautomatiseerde wetenschapper, met meer dan 10.000 GPU's en publicatie van papers, gewichten en code. Sollicitaties kunnen tot 5 december. <a href="https://research.perplexity.ai/">Perplexity</a></li>
+<li>Ruby-bibliotheek httpx 1.9.0 heeft een RCE-kwetsbaarheid via Oj-deserialisatie (CVE-2026-129784). Upgrade naar 1.9.1 of gebruik strict mode. <a href="https://research.jfrog.com/vulnerabilities/httpx-is-vulnerable-to-remote-code-execution-via-oj-object-mode-deserialization-cve-2026-129784/">JFrog</a></li>
+<li>Elastic analyseert vijf LLM-gestuurde aanvalsframeworks zonder ingebouwde autorisatie, met detectieadvies. Het sluit aan bij de Artex-waarschuwing van de FBI van gisteren. <a href="https://www.elastic.co/security-labs/threat-command/agentic-offensive-frameworks-detection-artex">Elastic</a></li>
+<li>Bashkit is een Rust-sandbox voor bash in-process voor LLM-agents. Het analyseert scripts vooraf en forceert netwerk- en resourcelimieten. <a href="https://github.com/everruns/bashkit">GitHub</a></li>
+<li>Een vendor-neutrale set Sigma-, YARA- en Suricata-regels richt zich op aanvallen op LLM-apps, MCP-servers en RAG-systemen. <a href="https://github.com/depalmar/ai-dfir-toolkit">GitHub</a></li>
+<li>Bij Maileva, een dochter van La Poste, lekten namen en postadressen van ongeveer 22 miljoen mensen. De Franse cybercrime-eenheid onderzoekt het. <a href="https://www.rfi.fr/en/france/20261116-french-cybercrime-unit-probes-massive-cyberattack-on-la-poste-subsidiary">RFI</a></li>
+<li>Valkey 9.2 vervangt de skiplist voor sorted sets door een B+-tree, wat de indexoverhead in een test met 36 tot 43 procent verlaagt. <a href="https://valkey.io/blog/from-skiplist-to-b+tree/">Valkey</a></li>
+<li>ngrok heeft een MCP-server waarmee coding agents verkeer kunnen inspecteren en Traffic Policy-regels kunnen valideren. <a href="https://ngrok.com/blog/mcp">ngrok</a></li>
+<li>React Flow 13 splitst de interne store in gespecialiseerde subscriptions om renders in grote node-UI's te beperken. <a href="https://xyflow.com/blog/react-flow-13-major-release">xyflow</a></li>
+</ul>
+</article>
+<p><a href="./">← Alle digests</a></p>
+</body>
+</html>
