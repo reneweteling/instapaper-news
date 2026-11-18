@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI-digest – woensdag 18 november</title>
+<meta name="author" content="René Weteling">
+<meta property="og:title" content="AI-digest – woensdag 18 november">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2026-11-18">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<article>
+<h1>AI-digest – woensdag 18 november</h1>
+<p>Vandaag in het kort: OpenAI brengt GPT-6.2 Astra en Sol uit, Microsoft komt met eigen codemodellen die een fractie kosten, en een kritieke Java-bug en een gekaapte npm-bibliotheek vragen vandaag om actie. Verder valt Vercel eve 1.0 op als agentframework, wordt het steeds gebruikelijker om agents buiten hun sandbox te houden, en loopt de beursgang van Anthropic tegen de prijsbepaling aan. Openai.com gaf een 403, Tweakers was geblokkeerd en The Information zit achter een betaalmuur, dus voor een deel steun ik op TLDR, Simon Willison en The Decoder.</p>
+
+<h2>1. OpenAI brengt GPT-6.2 Astra en Sol uit</h2>
+<p>OpenAI heeft twee modellen uitgebracht. Astra is bedoeld voor de zwaarste taken, Sol is de snellere variant voor dagelijks werk. Beide zitten in ChatGPT Work, Codex en de API. De OpenAI-pagina zelf gaf mij een 403, dus de details komen uit TLDR en Simon Willison.</p>
+<p>Volgens Willison kost Astra 8 dollar per miljoen invoertokens en 40 dollar per miljoen uitvoertokens, 80 procent van de prijs van de vorige Astra. Sol blijft op 2 en 10 dollar. Hij schrijft ook dat de ontvangst gemengd is: Astra blijft op sommige benchmarks achter bij Claude Fable 5.2 en de schrijfstijl valt niet bij iedereen goed. Zoekresultaten over prijzen spreken elkaar tegen, dus controleer de prijspagina voordat je een budget opstelt.</p>
+<p>Voor jou is Sol de interessante: een model dat in Codex goedkoop genoeg is om als standaard te draaien, met Astra voor het lastige werk. Dat is dezelfde splitsing die je bij Claude tussen Haiku, Sonnet en Opus maakt.</p>
+<p><strong>Probeer:</strong> draai een bestaande agenttaak uit je backend, bijvoorbeeld een RAG-antwoord met toolgebruik, op Sol en op je huidige model. Vergelijk kosten per taak en het aantal mislukte tool-aanroepen, niet alleen de kwaliteit van de tekst.</p>
+<p><a href="https://openai.com/index/introducing-gpt-6-2-astra-sol/">OpenAI</a> · <a href="https://simonwillison.net">Simon Willison</a> · <a href="https://tldr.tech/ai/2026-11-18">TLDR AI</a></p>
+
+<h2>2. Microsoft bouwt zelf codemodellen, en gebruikt ze</h2>
+<p>Microsoft AI kondigde gisteren een reeks MAI-modellen aan. Het hoofdmodel voor code is MAI Code 2. Gemiddeld over vier benchmarks haalt het volgens Microsoft 98 procent van GPT-6.1 Sol voor ongeveer 40 procent van de prijs, en 96 procent van Claude Opus 5.5 voor ongeveer 5 procent van de prijs. MAI Code 2 Flash is bedoeld voor routinewerk in grote volumes en zit, net als MAI Code 2, in GitHub Copilot. Het Flash-model staat in Foundry in een beperkte preview.</p>
+<p>Dit zijn cijfers van de fabrikant op eigen benchmarks, dus neem ze met een korrel zout. Wel past het in een patroon dat The Decoder beschrijft: Microsoft vervangt in eigen producten externe modellen door goedkopere eigen varianten. Er zit ook een routeringsmodel bij, Decision 1.1, dat werk alleen naar grotere modellen stuurt als dat nodig is. Microsoft noemt het 79 keer goedkoper dan GPT-6.1 Sol. Daarnaast meldt Microsoft dat zijn Maia 200-chip in productie is, met 1,7 keer meer tokens per watt.</p>
+<p>Als je Copilot gebruikt, kijk dan in de modelkiezer of MAI Code 2 beschikbaar is. De kans is groot dat Copilot er standaard iets mee gaat doen.</p>
+<p><a href="https://microsoft.ai/news/microsoft-ignite-2026/">Microsoft AI</a> · <a href="https://the-decoder.com/microsoft-is-replacing-outside-ai-models-in-its-own-products-with-cheaper-in-house-alternatives/">The Decoder</a></p>
+
+<h2>3. Java4Shell: kritieke bug in de Base64-decoder van OpenJDK</h2>
+<p>Calif beschrijft Java4Shell (CVE-2026-114938, CVSS 4.0 score 9,2). Het is een geheugenfout in de x86-64 intrinsic voor Base64-decodering in OpenJDK. Hij treft alleen CPU's met AVX-512 VBMI, zoals Intel Xeon vanaf Ice Lake en AMD EPYC vanaf Zen 4. ARM64 is niet getroffen. Ook Corretto, Temurin, Zulu en Oracle Java SE zijn geraakt.</p>
+<p>Een aanvaller hoeft niet in te loggen: slecht gevormde Base64-invoer volstaat voor de geheugenbeschadiging. Of dat tot code-uitvoering leidt, hangt van de toepassing af. Calif zegt dat productspecifieke aanvalsketens nog niet zijn gepubliceerd. OpenJDK en Oracle hebben gisteren patches uitgebracht.</p>
+<p>Draai je Java ergens in je stack (Elasticsearch, Kafka, Keycloak, Jenkins), dan kun je dit dus niet negeren. Als patchen niet direct kan, schakel je de intrinsic uit met `-XX:-UseBASE64Intrinsics`. De optie `-XX:UseAVX=2` werkt ook, maar alleen op x86-64: op ARM start de JVM er niet mee.</p>
+<p><strong>Probeer:</strong> zoek met `grep -o avx512vbmi /proc/cpuinfo | head -1` uit welke hosts de CPU-vlag hebben, en patch die eerst.</p>
+<p><a href="https://calif.io/java4shell/">Calif</a> · <a href="https://tldr.tech/infosec/2026-11-18">TLDR InfoSec</a></p>
+
+<h2>4. WPPConnect gekaapt: kwaadaardige npm-releases en Docker-images</h2>
+<p>StepSecurity meldt dat de WhatsApp-bibliotheek WPPConnect via zijn eigen releasepijplijn is gecompromitteerd, nadat ongecontroleerde commits een module hadden toegevoegd. Het gaat om `@wppconnect-team/wppconnect` 2.4.1 en 2.4.3 en `@wppconnect/server` 2.10.82 en 2.10.83, plus de Docker-images met die tags. Voor de zekerheid noemen ze ook 2.4.2. Veilig zijn bibliotheek 2.4.0 en server 2.10.81.</p>
+<p>De code draait niet bij installatie maar zodra de bibliotheek wordt geladen of de server start. `--ignore-scripts` helpt dus niet. Ze stuurt omgevingsvariabelen, het begin van `.env`- en configbestanden en WhatsApp-sessietokens naar een Telegram-bot. Op de laatste melding hadden de beheerders nog niet bevestigd dat het is opgelost.</p>
+<p>Ook als je WPPConnect niet gebruikt, is de les bruikbaar. Pin versies met een lockfile, vergelijk Docker-digests in plaats van tags en stel in dat nieuwe releases een tijdje worden vastgehouden voordat je ze toelaat. Daarnaast is egress-filtering een goede verdediging: een bothost heeft geen reden om api.telegram.org te bereiken.</p>
+<p><strong>Probeer:</strong> zoek in je lockfiles op `wppconnect`, en kijk in je proxy- of DNS-logs naar `api.telegram.org` vanaf servers die Node draaien.</p>
+<p><a href="https://www.stepsecurity.io/blog/wppconnect-compromised-malicious-releases-steal-secrets-and-whatsapp-sessions">StepSecurity</a></p>
+
+<h2>5. Vercel eve 1.0: een agentframework met herstel na crashes</h2>
+<p>Vercel heeft eve uitgebracht als 1.0. Het is een open-source framework voor agents dat de lus rond model, tools en subagents voor je regelt. Je kiest het model zelf en bepaalt welke acties goedkeuring nodig hebben. Voortgang wordt bewaard via de Workflow SDK, dus een agent kan na een crash verder. Er zijn sessies met meerdere gebruikers, geheugen, OpenTelemetry-tracing en kanalen voor onder meer Slack, Teams, GitHub, Linear en iMessage.
+</p>
+<p>Starten kan met `npx eve@latest init my-agent` (Node.js 24 of nieuwer), en er is integratie met Next.js. Vercel noemt een daling van de mediane latency per beurt van 3,0 seconden naar 414 ms en zo'n 76 procent lagere kosten voor een sessie van 50 beurten, maar dat komt van een test met een nagebootst model. Een licentie en prijzen staan niet op de pagina, en hosting verloopt via Vercel Workflows.</p>
+<p>Voor jou is het vooral een vergelijkingspunt als je agentlogica nu zelf in een Django- of Node-backend bouwt: goedkeuringen, hervatten en tracing zijn precies de onderdelen die je anders zelf moet schrijven.</p>
+<p><strong>Probeer:</strong> scaffold een agent in een wegwerpproject en kijk of de goedkeuringsstap past bij de acties die jij aan een mens wilt voorleggen.</p>
+<p><a href="https://vercel.com/blog/eve-is-now-generally-available">Vercel</a></p>
+
+<h2>6. Agents buiten hun sandbox houden</h2>
+<p>Simon Willison beschrijft samen met Prime Radiant het patroon van de externe sandbox. De code die een agent uitvoert draait in een aparte sandbox, terwijl de agent zelf erbuiten blijft. Er zijn drie implementaties (v86 met WebAssembly, Apple Containers en Quicksand van Microsoft) met dezelfde localhost-API, een HTTP-proxy met allowlist en vervanging van credentials.</p>
+<p>Het voordeel is dat een geprepareerde pagina of repository de agent niet meer kan verleiden tot het uitlezen van je geheimen, want de sandbox ziet alleen een vervangende sleutel. Dat sluit aan bij het verhaal over WPPConnect hierboven. TLDR wijst op een stuk met dezelfde lijn: regels in tekst hielden agents niet tegen om te mergen, rechten die de server afdwingt wel.</p>
+<p>Wil je dit met Docker nabootsen, dan is de kern een netwerk met alleen een proxy en een allowlist, plus placeholders voor je tokens die de proxy pas bij uitgaand verkeer invult.</p>
+<p><a href="https://blog.primeradiant.com/external-sandboxes-for-coding-agents/">Prime Radiant</a> · <a href="https://itsmeduncan.com/2026/11/17/only-the-human-merges">Only the human merges</a></p>
+
+<h2>7. Chips en inference: Cerebras, AMD en Nvidia</h2>
+<p>Cerebras splitst inference op: GPU's doen het verwerken van de prompt en de Cerebras-systemen genereren de uitvoer. Volgens het bedrijf levert dat vijf keer meer tokens per megawatt op. Het is een eigen claim zonder onafhankelijke test.</p>
+<p>OpenAI zegt dat zijn modellen op AMD's GPU-ontwerp in minder dan vijf maanden tot 14 procent winst in vermogen, prestatie en chipoppervlak hebben gehaald, en dat AMD een deel al in een ontwerp voor de fabriek heeft gebruikt. Dat is een bewering van OpenAI zelf, gemeld door The Decoder.</p>
+<p>The Information schrijft volgens de kop op Techmeme dat Nvidia in 2022 Alibaba in contact bracht met Alice Huang, een vermeende Chinese spion, en zo een rivaal een klant bezorgde. Het artikel zit achter een betaalmuur en ik kon het niet lezen. Nvidia's kwartaalcijfers heb ik niet kunnen verifiëren; een zoekresultaat noemde 18 november als rapportagedatum, maar dat is niet bevestigd.</p>
+<p><a href="https://www.cerebras.ai/blog/cerebras-launches-disaggregated-inference">Cerebras</a> · <a href="https://the-decoder.com/openai-says-its-models-delivered-a-years-worth-of-chip-optimization-on-top-of-amds-own-engineering/">The Decoder</a> · <a href="https://www.techmeme.com">Techmeme</a></p>
+
+<h2>8. Anthropic bepaalt vanavond de prijs voor zijn beursgang</h2>
+<p>CNBC meldt dat Anthropic een range van 70 tot 78 dollar per aandeel heeft gesteld voor 825 miljoen aandelen, wat tot 64,35 miljard dollar kan ophalen. De orderboeken sloten dinsdag. De definitieve prijs wordt na sluiting van de beurs vandaag verwacht, en de handel op Nasdaq onder het kenmerk ANT begint donderdag.</p>
+<p>Volgens bronnen overweegt Anthropic de uitgifte te vergroten en de prijs ruim boven 80 dollar te zetten. De vraag zou volgens CNBC ongeveer 400 miljard dollar bij instellingen en bijna 100 miljard bij particulieren zijn, maar dat zijn niet-bindende indicaties. Het Center for AI Safety publiceerde een verklaring waarin een groep ondertekenaars het veiligheidsimago van Anthropic aanvecht. Over de merites daarvan neem ik geen standpunt in.</p>
+<p>Voor de API verandert er morgen niets. Het verschil is dat prijzen, limieten en productkeuzes straks aan kwartaalcijfers worden getoetst.</p>
+<p><a href="https://www.cnbc.com/2026/11/18/anthropic-ipo-ai-offering-price.html">CNBC</a> · <a href="https://safe.ai/news/anthropic-is-not-a-safe-ai-company">Center for AI Safety</a></p>
+
+<h2>Snel nog even</h2>
+<ul>
+<li>Mistral heeft Vibe Desktop uitgebracht voor macOS en Windows, waarmee je meerdere taken tegelijk laat lopen. Computer use ontbreekt nog, schrijft The Decoder. <a href="https://the-decoder.com/mistral-plays-catch-up-with-vibe-desktop-as-rivals-already-command-full-operating-systems/">The Decoder</a></li>
+<li>Google DeepMind brengt Genie 4 uit, het 3D-wereldmodel, voor abonnees van Google AI Ultra. <a href="https://the-decoder.com/google-deepminds-project-genie-update-brings-genie-4-chainable-worlds-and-a-community-gallery-for-remixing/">The Decoder</a></li>
+<li>Gemini kan voortaan bedrijven bellen, afspraken maken en betalen binnen een uitgavenlimiet die je zelf instelt. <a href="https://blog.google/innovation-and-ai/products/gemini-app/tasks-in-gemini-free-new-features/">Google</a></li>
+<li>Replit Missions laat groepen agents binnen een vast budget aan grote projecten werken. <a href="https://replit.com/blog/introducing-replit-missions">Replit</a></li>
+<li>Daniel Stenberg meldt dat agents in ruim drie weken 185.000 regels C van curl naar 340.000 regels Rust zetten, terwijl het echte project meer dan 300 commits en 200 bugfixes kreeg. <a href="https://daniel.haxx.se/blog/2026/11/17/actual-curl-rewrites-in-rust/">Daniel Stenberg</a></li>
+<li>Een booby-trapped ONNX-model lekt volgens Phrack bestanden en geheugen via een parserfout zodra een triggerwoord valt. Laad geen modellen uit onbekende bronnen. <a href="https://phrack.org/issues/73/backdoor-attacks-against-machine-learning-irl">Phrack</a></li>
+<li>mcp-attest is een CI-tool die MCP-servers test op fouten in toegangsbeheer en OAuth-tokens. <a href="https://github.com/Balanov/mcp-attest">GitHub</a></li>
+<li>Een Harvard-studie meldt dat meer dan de helft van de stroom voor de grootste Amerikaanse datacenters uit gas en kolen komt. <a href="https://the-decoder.com/more-than-half-the-electricity-feeding-americas-largest-data-centers-comes-from-gas-and-coal/">The Decoder</a></li>
+<li>jQuery 4.1.0 en 3.8.0 zijn uit, en 3.8.0 sluit het werk aan de 3.x-lijn af. <a href="https://blog.jquery.com/2026/11/17/jquery-4-1-0-and-3-8-0-released-passing-the-torch">jQuery</a></li>
+<li>Oxlint krijgt met tsrs een snellere backend voor type-aware linting. <a href="https://oxc.rs/blog/2026-11-17-faster-type-aware-linting-with-tsrs">Oxc</a></li>
+</ul>
+</article>
+<p><a href="./">← Alle digests</a></p>
+</body>
+</html>
