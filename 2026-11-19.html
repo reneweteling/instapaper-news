@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI-digest – donderdag 19 november</title>
+<meta name="author" content="René Weteling">
+<meta property="og:title" content="AI-digest – donderdag 19 november">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2026-11-19">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<article>
+<h1>AI-digest – donderdag 19 november</h1>
+<p>Vandaag in het kort: Google brengt Gemini 4 Neon uit voor een lagere prijs dan de top van de markt, er zijn twee kritieke NGINX-lekken en een vergiftigd Microsoft-pakket op PyPI, en Anthropic is vandaag naar de beurs gegaan. Verder meldt de Financial Times dat Chinese chipklanten bij TSMC en Samsung tegen exportvergunningen aanlopen, en laat OpenAI zien dat zijn modellen chipontwerp en onderzoekstaken overnemen. Openai.com gaf mij een 403, dus voor OpenAI steun ik op de samenvattingen van TLDR en Techmeme.</p>
+
+<h2>1. Google brengt Gemini 4 Neon uit</h2>
+<p>Google heeft gisteren Gemini 4 Neon aangekondigd, een model voor code, kenniswerk en wetenschap dat vooral op snelheid mikt. Het model-ID is `gemini-4-neon`, het contextvenster is 1 miljoen tokens. De prijs is 3 dollar per miljoen invoertokens, 15 dollar per miljoen uitvoertokens, en gecachete invoer kost 0,15 dollar per miljoen.</p>
+<p>Je vindt het in de betaalde laag van de Gemini API in Google AI Studio, in Android Studio en in Antigravity voor Pro- en Ultra-abonnees. Google noemt eigen scores: nummer 1 op de Artificial Analysis Coding Agent Index (58,6), nummer 3 op de algemene Intelligence Index (61) en 65,2 procent op Terminal-Bench 4.1. Dat zijn benchmarks die Google zelf kiest en citeert, dus onafhankelijke tests moeten nog volgen. Een losse blogpost schat op basis van snelheid dat Neon in de buurt van Opus 5.5 komt, maar dat is uitdrukkelijk een projectie en geen meting.</p>
+<p>Voor jou is vooral de cachekorting van 95 procent interessant. Bij agents die steeds dezelfde lange systeemprompt en repo-context meesturen, bepaalt dat meer van de rekening dan de prijs per uitvoertoken.</p>
+<p><strong>Probeer:</strong> draai een bestaande taak uit je eigen coding-agent of RAG-pijplijn op `gemini-4-neon` en vergelijk de kosten per afgeronde taak, met cachegebruik erbij, met je huidige model.</p>
+<p><a href="https://blog.google/innovation-and-ai/models-and-research/gemini-models/introducing-gemini-4-neon/">Google</a> · <a href="https://micjm.com/blog/gemini-4-neon-looks-like-a-top-model/">micjm.com</a></p>
+
+<h2>2. Twee kritieke NGINX-lekken in HTTP/2</h2>
+<p>Wiz heeft twee geheugenfouten in de HTTP/2-code van NGINX beschreven, allebei CVSS 4.0 score 9,2 en allebei bruikbaar zonder in te loggen. CVE-2026-123633 is een use-after-free en treft NGINX 1.19.7 tot en met 1.31.8 wanneer HTTP/2 als proxy is ingesteld. CVE-2026-123007 is een integer underflow in de send_window en treft 1.9.5 tot en met 1.31.8 in standaardconfiguraties met HTTP/2. Dat laatste pad heeft Wiz over HTTPS op 64-bit systemen aangetoond.</p>
+<p>Wiz meldt geen aanvallen in het wild en heeft de proof-of-concepts niet gepubliceerd. Misbruik is lastig, omdat het geheugenlekken en heap grooming vergt. Dat is geen reden om te wachten: de patches zijn er al. Fixes zitten in NGINX 1.30.7 (stable) en 1.31.9 (mainline). Dezelfde release repareert nog acht andere CVE's, onder meer in HTTP/3, de DNS-resolver en de mailproxy.</p>
+<p>Kun je nu niet upgraden, zet dan HTTP/2 uit. Vanaf NGINX 1.25.1 doe je dat met `http2 off;` in het serverblok, en haal je de `http2`-parameter uit `listen`. Let op dat ingress-controllers en Docker-images vaak hun eigen NGINX meebrengen.</p>
+<p><strong>Probeer:</strong> controleer met `nginx -v` op elke host en in elke container-image welke versie draait, en zoek in je configs naar `http2`.</p>
+<p><a href="https://www.wiz.io/blog/nginx-http2-rce-vulnerabilities">Wiz</a> · <a href="https://tldr.tech/infosec/2026-11-19">TLDR InfoSec</a></p>
+
+<h2>3. Microsoft agent-framework op PyPI bevat een credential stealer</h2>
+<p>De versies 1.26.1 en 1.26.2 van `agent-framework` op PyPI zijn kwaadaardig, schrijft OpenSourceMalware. De pakketten stonden onder Microsofts eigen publisher-account. PyPI zette dat account in quarantaine nadat 1.26.1 was ontdekt, maar daarna verscheen toch 1.26.2. Daaruit leidt de auteur af dat de aanvaller nog steeds kan publiceren. De exacte publicatiedata staan niet in het bericht.</p>
+<p>De code zit in een `.pth`-bestand (`af_runtime_diag.pth`) en draait bij elke start van Python, ook zonder dat je het pakket importeert. Het verzamelt omgevingsvariabelen met woorden als TOKEN, SECRET en KEY, leest credentialbestanden van Azure CLI, pip, npm, Git, Docker en Hugging Face, plus `.env`-bestanden, en leest via `/proc` ook de omgeving van andere processen. In CI vraagt het zelfs nieuwe tokens op bij GitHub Actions OIDC en Azure managed identity. Alles gaat in één POST naar een webhook.site-adres. Er is geen tweede payload en geen persistentie op OS-niveau.</p>
+<p>Wie een van deze versies heeft geïnstalleerd, moet het als volledige credentialdiefstal behandelen. Bouw de omgeving opnieuw op en roteer alle geheimen die erin zaten. Dit is dezelfde les als bij de WPPConnect-aanval van gisteren: een `.pth`-bestand omzeilt het idee dat je geen scripts bij installatie draait.</p>
+<p><strong>Probeer:</strong> `pip list 2>/dev/null | grep agent-framework` in je virtualenvs en CI-images, en zoek met `find / -name "af_runtime_diag*" 2>/dev/null`. Controleer ook je lockfiles op 1.26.1 en 1.26.2.</p>
+<p><a href="https://opensourcemalware.com/blog/agent-framework-pypi-compromised">OpenSourceMalware</a></p>
+
+<h2>4. Anthropic gaat naar de beurs</h2>
+<p>Anthropic noteert sinds vandaag op Nasdaq onder de ticker ANT. Volgens de koppen op Techmeme prijsde het bedrijf de aandelen op 83 dollar, boven de oorspronkelijke bandbreedte van 70 tot 78 dollar. Dat leverde volgens CNBC ongeveer 81,3 miljard dollar op, de grootste beursgang ooit. Reuters meldt een openingskoers van 111,50 dollar, goed voor een waardering van rond de 2 biljoen dollar. Dat zijn cijfers uit koppen en samenvattingen: de originele artikelen heb ik niet gelezen, en een slotkoers heb ik niet kunnen vinden.</p>
+<p>Er is ook kritiek. Bloomberg schrijft dat meer dan de helft van de biedende instellingen geen aandelen kreeg, en dat Amerikaanse beleggers voorrang kregen. Volgens de Financial Times, zoals samengevat door Techmeme, staat tegenover de opbrengst zo'n 900 miljard dollar aan toekomstige commitments voor rekenkracht en infrastructuur. Anthropic is een public benefit corporation met een trust van vijf leden. Ook Amerikaanse volksvertegenwoordigers volgen de beursgang als testcase voor toezicht op AI.</p>
+<p>Voor jou als gebruiker verandert er vandaag niets aan de API. Wel gaat Anthropic nu kwartaalcijfers publiceren, en daarmee komen prijzen, limieten en kortingen onder druk van de markt te staan. Epoch AI schat dat de uitgaven aan rekenkracht in het derde kwartaal bijna 10 miljard dollar bedroegen.</p>
+<p><a href="https://www.techmeme.com">Techmeme</a> · <a href="https://epoch.ai/data-insights/anthropic-openai-compute-spend-growth">Epoch AI</a></p>
+
+<h2>5. Chipleveringen naar China stokken door exportvergunningen</h2>
+<p>De Financial Times meldt, via Techmeme, dat TSMC en Samsung sommige leveringen aan Chinese klanten hebben opgeschort in afwachting van Amerikaanse exportvergunningen. Genoemd worden een project van ByteDance bij Samsung Foundry, werk van Kunlun en de chipproductie van Xiaomi bij TSMC. The Information schrijft dat Moonshot AI een plan van 150 miljoen dollar om Nvidia Blackwell-GPU's in Indonesië te huren heeft geschrapt, nadat de Amerikaanse regels strenger werden.</p>
+<p>Daarnaast meldt de New York Times dat Alibaba via regionale bedrijven en datacenters buiten China bij Nvidia-chips kwam, en Reuters meldt dat een rapport van een Amerikaanse congrescommissie stelt dat het Chinese leger geavanceerde Nvidia-chips wil voor AI-wapens. Dit zijn koppen en samenvattingen. Ik heb geen primaire bron kunnen openen en mijn eigen zoekopdracht gaf alleen oudere berichten, dus de details zijn onzeker.</p>
+<p>Waarom het ertoe doet: het beperkt de GPU-capaciteit waar Chinese modelbouwers over beschikken, en het raakt de vraag naar Nvidia-hardware. Voor open modellen uit China, zoals Qwen, is het de moeite waard om te kijken of de releasetempo's de komende maanden veranderen.</p>
+<p><a href="https://www.techmeme.com">Techmeme</a></p>
+
+<h2>6. OpenAI: chipontwerp en onderzoeksagents</h2>
+<p>OpenAI zegt dat zijn modellen het circuitoppervlak van de eigen Jalapeño-chip met naar schatting 10 tot 13 procent verkleinden, en op AMD-GPU's met tot 14 procent. Het gaat om door modellen geschreven RTL. De bron zelf gaf mij een 403, dus de cijfers komen uit de samenvatting van TLDR.</p>
+<p>In een tweede bericht zegt OpenAI dat zijn agents bijna de helft van onderzoekstaken van twee tot vier uur zelfstandig afronden. Dat is een claim over een eigen taakset, zonder dat ik de opzet kon zien. De titel, "jagged frontier", past wel bij het beeld: sterk op sommige taken, zwak op andere.</p>
+<p>Verder verscheen er een stuk over de Codex-sandbox: de agent kan commando's op de machine van de gebruiker uitvoeren binnen grenzen die jij instelt. Als je Codex lokaal draait, is dat de pagina om te lezen voordat je de rechten verruimt.</p>
+<p><strong>Probeer:</strong> bekijk in je Codex-configuratie welke paden en netwerktoegang de sandbox toestaat, en zet alleen open wat een taak echt nodig heeft.</p>
+<p><a href="https://openai.com/index/advancing-chip-design-with-our-models/">OpenAI chipontwerp</a> · <a href="https://openai.com/index/inside-the-codex-sandbox/">Codex sandbox</a> · <a href="https://tldr.tech/ai/2026-11-19">TLDR AI</a></p>
+
+<h2>7. Waarom agents zoveel tokens kosten</h2>
+<p>Twee blogposts gaan over de kosten van langlopende agentsessies. Kernel laat in een privé-benchmark zien dat Gemini 4 Carbon ongeveer zeven keer zoveel stappen nam als GPT-6 Astra, waarvan de helft overbodig was. Dat is één test van één partij, maar het wijst op iets praktisch: een goedkoop model dat te veel stappen zet, kan duurder uitpakken dan een duur model dat recht op het doel afgaat.</p>
+<p>De andere post legt uit waarom Antigravity het wekelijkse quotum snel opmaakt. De promptcache verloopt na vijf minuten pauze, en grote systeeminstructies drijven het tokengebruik op. Ik heb de posts zelf niet geopend, alleen de samenvattingen gelezen.</p>
+<p>De les geldt ook voor je eigen agentbackend: meet kosten per afgeronde taak en niet per token, houd de systeemprompt kort en let op cache-TTL's, zeker als een gebruiker even pauzeert tussen beurten.</p>
+<p><a href="https://kernel.dev/blog/why-is-gemini-4-carbon-taking-so-long/">Kernel</a> · <a href="https://asubedi.com.np/blog/why-antigravity-eats-weekly-quota-fast/">asubedi.com.np</a></p>
+
+<h2>Snel nog even</h2>
+<ul>
+<li>Puppet-lek CVE-2026-115731 (CVSS 9,4) wordt actief misbruikt en staat in de CISA KEV-lijst. Patches kwamen op 3 november uit, in Puppet Enterprise 2026.0.1 en Puppet Core 9.1.3 en 8.22.2. <a href="https://thehackernews.com/2026/11/hackers-exploiting-critical-puppet-rce.html">The Hacker News</a></li>
+<li>Gitea: tokens die alleen publiek mochten lezen konden via de admin-API alles, CVE-2026-117635. Update en controleer je tokens. <a href="https://escape.tech/blog/escape-research-found-a-scope-bypass-that-made-gitea-s-restricted-tokens-full-admins-it-s-now-cve-2026-117635/">Escape</a></li>
+<li>Via Optimizely uitgeleverde JavaScript infecteerde 178 sites en stal kaartgegevens, volgens Ars Technica. <a href="https://arstechnica.com/security/2026/11/malicious-code-delivered-through-optimizely-hits-visitors-to-hundreds-of-sites/">Ars Technica</a></li>
+<li>Mastra Factory is een open-source tool die issues omzet in plannen, implementaties en gereviewde pull requests. <a href="https://factory.mastra.ai/">Mastra</a></li>
+<li>Perplexity heeft een Context API die van maximaal 10 URL's tegelijk schone Markdown ophaalt, met controle over versheid. Handig als bouwsteen voor RAG. <a href="https://www.perplexity.ai/hub/blog/context-api-extracts-full-context-from-any-web-page">Perplexity</a></li>
+<li>Cloudflare CLI 1.0 heeft een release candidate, met live logstreams en deploymentpreviews. <a href="https://developers.cloudflare.com/changelog/post/2026-11-17-release-candidate">Cloudflare</a></li>
+<li>Google beschrijft Sashiko, een agentisch reviewsysteem voor Linux dat het vinden van bugs scheidt van het controleren ervan. <a href="https://cloud.google.com/blog/products/application-development/lessons-from-building-sashiko-an-agentic-code-review-system">Google Cloud</a></li>
+<li>Een onderzoeker stopte een backdoor in Qwen3-8B die alleen in één agent-harness een bash-aanroep start. Reden te meer om shell-aanroepen goed te keuren en agents in een sandbox te draaien. <a href="https://pgaleone.eu/ai/2026/11/14/backdooring-llms-and-trust/">pgaleone.eu</a></li>
+<li>Meta gebruikt AI-agents om verbeteringen in ML-technieken over verschillende advertentierankingmodellen te verspreiden. <a href="https://engineering.fb.com/2026/11/18/ml-applications/ai-agents-to-scale-ml-innovations-across-ads-ranking-models/">Meta Engineering</a></li>
+</ul>
+</article>
+<p><a href="./">← Alle digests</a></p>
+</body>
+</html>
