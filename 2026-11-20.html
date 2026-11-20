@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI-digest – vrijdag 20 november</title>
+<meta name="author" content="René Weteling">
+<meta property="og:title" content="AI-digest – vrijdag 20 november">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2026-11-20">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<article>
+<h1>AI-digest – vrijdag 20 november</h1>
+<p>Vandaag in het kort: PostgreSQL 19 is uit, PHP heeft acht kwetsbaarheden gepatcht waarvan zeven kritiek, en twee evaluaties van Stripe en Chrome laten zien waarom coding agents bijna goede code schrijven. Google voegt Tool Retrieval toe aan de Gemini API. Op de beurs staat AI onder druk: Anthropic zakte op dag twee en Aziatische chipaandelen kelderden. Verder meldt een Amerikaanse congrescommissie dat bijna 900.000 geavanceerde chips naar China zijn goedgekeurd, en ligt Meta's Muse onder vuur om privacyproblemen. Ars Technica en The Verge waren voor mij niet te openen, dus daar steun ik op samenvattingen van TLDR en Techmeme.</p>
+
+<h2>1. PostgreSQL 19 is uitgebracht</h2>
+<p>De PostgreSQL-ontwikkelgroep heeft gisteren versie 19 uitgebracht. Voor dagelijks gebruik zijn drie dingen belangrijk. <code>REPACK (CONCURRENTLY)</code> haalt tabelbloat weg zonder lees- en schrijfacties te blokkeren, en vervangt in de praktijk <code>VACUUM FULL</code> en <code>CLUSTER</code>. Met <code>pg_plan_advice</code> en <code>pg_stash_advice</code> zet je een queryplan vast, zonder de applicatiecode aan te passen. En <code>INSERT ... ON CONFLICT DO SELECT</code> kan met <code>RETURNING</code> bestaande rijen teruggeven, wat het get-or-create-patroon in Django en andere ORM's eenvoudiger maakt.</p>
+<p>Daarnaast is autovacuum slimmer geworden (parallelle indexopruiming en een scoresysteem voor prioriteit), zijn er nieuwe monitoringviews zoals <code>pg_stat_lock</code>, en zijn foreign key checks volgens de release notes bij bulk-inserts bijna twee keer zo snel. Logische replicatie hoeft niet meer opnieuw op te starten om <code>wal_level</code> te verhogen. Met <code>WAIT FOR LSN</code> kun je op een standby wachten tot je eigen schrijfactie is aangekomen.</p>
+<p>Let op de wijzigingen die iets kunnen breken: JIT staat nu standaard uit, <code>io_workers</code> is vervangen door <code>io_min_workers</code> en <code>io_max_workers</code>, RADIUS-authenticatie is verwijderd en <code>md5</code>-wachtwoorden geven een waarschuwing. Voor pgvector-gebruikers staat er in de aankondiging niets specifieks. Controleer dus de compatibiliteit van je extensies voordat je upgradet.</p>
+<p><strong>Probeer:</strong> zet PostgreSQL 19 in een testcontainer, draai je migraties en je zwaarste queries, en vergelijk de plannen. Kijk of <code>md5_password_warnings</code> iets laat zien in je logs.</p>
+<p><a href="https://www.postgresql.org/about/news/postgresql-19-released-3449/">PostgreSQL.org</a> · <a href="https://www.postgresql.org/docs/19/release-19.html">Release notes</a></p>
+
+<h2>2. PHP patcht acht kwetsbaarheden, zeven kritiek</h2>
+<p>De PHP Foundation heeft acht CVE's gepatcht, allemaal met CVSS 9,2 behalve één van 8,8. Het zijn vooral use-after-free-fouten en een TOCTOU-fout, met mogelijke code-uitvoering als gevolg. De fixes zitten in PHP 8.2.36, 8.3.37, 8.4.28, 8.5.13 en 8.6.0. Niet elke fout zit in elke tak: CVE-2026-129474 geldt alleen voor 8.5 en hoger.</p>
+<p>Het bekendst is CVE-2026-126714, door Depthfirst "phpAfterShell" genoemd. Als een PHP-worker midden in het schrijven van een sessiebestand sterft, kan er een misvormd bestand achterblijven dat bij <code>session_start()</code> een willekeurige deserialisatie oplevert. Misbruik vraagt wel een bruikbare gadget chain in je applicatie en invloed op de sessiedata. Een andere fout, CVE-2026-129289, speelt bij frontends die persistente FastCGI-verbindingen gebruiken, zoals nginx met <code>fastcgi_keep_conn on</code>, en bij code die <code>php://input</code> niet volledig leest.</p>
+<p>Kun je niet direct patchen, dan raadt het artikel aan om session upload progress uit te zetten. De details per CVE zijn afkomstig van een secundaire bron, The Hacker News. Controleer de exacte versies dus ook in de officiële release-aankondiging.</p>
+<p><strong>Probeer:</strong> check <code>php -v</code> in al je images, kijk of je file-based sessions gebruikt, en bouw de images opnieuw met de gepatchte basisversie.</p>
+<p><a href="https://thehackernews.com/2026/11/php-fixes-7-critical-flaws-including.html">The Hacker News</a> · <a href="https://tldr.tech/infosec/2026-11-20">TLDR InfoSec</a></p>
+
+<h2>3. Coding agents schrijven bijna goede code, skills helpen</h2>
+<p>Stripe publiceerde een benchmark met 69 scenario's rond betalingen, abonnementen en Connect, uitgevoerd door 14 combinaties van model en harness, waaronder Claude Code, Codex en OpenCode. Het gemiddelde scoort 78 procent op de eisen, maar als alle verplichte criteria moeten slagen, zakt dat naar 29 procent. De beste resultaten had GPT-6 Astra (90 procent gemiddeld, 52,9 procent strikt), gevolgd door GPT-6.1 Sol en Opus 5.5. Typische fouten zijn verouderde API-parameters uit trainingsdata en ontbrekende details: Opus 5.5 controleerde alleen de betaalstatus en negeerde terugbetalingen en disputes.</p>
+<p>De Stripe agent-plugin verbeterde alle 14 combinaties met ongeveer 3 tot 8 procentpunt. Het aantal webzoekopdrachten daalde met 96 procent en het gebruik van verouderde parameters ging van 7 naar 1,3 procent. De cijfers komen van Stripe zelf, bij een eigen testset.</p>
+<p>Het Chrome-team ziet iets vergelijkbaars. Met hun Modern Web Guidance, een set skills voor agents, slaagden agents volgens eigen metingen in ongeveer 91 procent van de webchecks tegen 52 procent zonder, per 9 november. Dave Porters stuk over harnesses komt tot een passende les: een ander model gedraagt zich anders in hetzelfde harness, dus test opnieuw na elke modelwissel.</p>
+<p><strong>Probeer:</strong> installeer <code>npx modern-web-guidance@latest install</code> in je Next.js-project en vergelijk een paar bestaande taken met en zonder. Gebruik voor betalingswerk de Stripe-plugin en laat de strikte eisen altijd door een mens controleren.</p>
+<p><a href="https://stripe.dev/blog/stripe-integration-evals-methodology">Stripe</a> · <a href="https://developer.chrome.com/blog/top-10-things-ai-gets-wrong-in-web-dev">Chrome</a> · <a href="https://davenporter.com/writings/agent-harnesses-cheap-to-swap-behavior-isnt">Dave Porter</a></p>
+
+<h2>4. Gemini API krijgt Tool Retrieval</h2>
+<p>Google heeft Tool Retrieval in preview toegevoegd aan de Gemini Interactions API. In plaats van elke toolschema bij ieder verzoek mee te sturen, houdt de agent zijn toolbibliotheek in reserve en laadt een schema pas als de taak het nodig heeft. Dat moet tokens besparen en de toolkeuze nauwkeuriger houden als je veel tools hebt.</p>
+<p>Je zet het aan door een <code>tool_search</code>-tool toe te voegen en <code>defer_loading: true</code> te zetten op de tools die je wilt uitstellen. Het werkt ook voor een <code>mcp_server</code>-tool, zodat de tools van een remote MCP-server op aanvraag laden. Wil je zelf de zoekfunctie bouwen, dan kan dat client-side, met een extra round trip per zoekactie. Het vereist Gemini 3.6 of nieuwer, en er is geen aparte prijs. Google raadt zelf aan om de besparing te meten, want elk geladen schema blijft de rest van het gesprek als invoer meetellen.</p>
+<p>Het patroon is bekend. Als je agent-backends veel MCP-tools aanbiedt, groeit het contextgebruik snel. Dit is dezelfde richting als het uitgesteld laden van tools in andere agentframeworks, nu als API-functie.</p>
+<p><strong>Probeer:</strong> neem een agent met 20 of meer tools, zet de zeldzame tools op <code>defer_loading</code> en vergelijk het aantal invoertokens en het aantal verkeerde toolkeuzes.</p>
+<p><a href="https://blog.google/innovation-and-ai/technology/developers-tools/gemini-api-tool-retrieval/">Google</a></p>
+
+<h2>5. AI-aandelen onder druk na Anthropics beursgang</h2>
+<p>Na de record-beursgang van gisteren is de stemming op de markt omgeslagen. Volgens de koppen op Techmeme sloot Anthropic de eerste dag 17 procent hoger op 97,17 dollar, goed voor een waardering van ongeveer 1,3 biljoen dollar. Op dag twee zakten de aandelen tot 87,26 dollar, dicht bij de uitgifteprijs van 83 dollar. Eerdere berichten over een openingskoers en waardering van ongeveer 2 biljoen dollar kloppen dus niet met de slotstand. De totale opbrengst komt volgens dezelfde koppen na uitoefening van de overtoewijzingsoptie op 93,5 miljard dollar, en TSMC nam kort na de beursgang een belang van 500 miljoen dollar.</p>
+<p>De daling beperkte zich niet tot Anthropic. De Financial Times meldt dat SoftBank in Azië ongeveer 15 procent verloor, TSMC ruim 5 procent en Samsung en SK Hynix ruim 6 procent. SoftBank wordt gekoppeld aan zijn grote belang in OpenAI. CBC schrijft dat de Nasdaq zijn winst van dit jaar is kwijtgeraakt, en een FT-column stelt dat de "AI-koorts" afneemt. Singapore-datacenterbedrijf DayOne zou zijn Amerikaanse beursgang hebben uitgesteld vanwege zorgen over waarderingen.</p>
+<p>Dit zijn koppen en samenvattingen. De onderliggende artikelen heb ik niet gelezen, dus de percentages zijn niet door mij gecontroleerd. Voor jou is het vooral een signaal voor de prijsdruk: als beleggers minder geduld krijgen met verlies en investeringen, kunnen labs eerder naar hogere prijzen of strengere limieten grijpen.</p>
+<p><a href="https://www.techmeme.com">Techmeme</a></p>
+
+<h2>6. Bijna 900.000 AI-chips naar China goedgekeurd</h2>
+<p>Een Amerikaanse congrescommissie meldt volgens Techmeme dat de overheid tussen december 2025 en mei 2026 ongeveer 880.000 tot 900.000 geavanceerde Nvidia- en AMD-chips voor Chinese kopers heeft goedgekeurd. CNBC schrijft dat sommige kopers banden met het leger hebben. Minister Bessent zegt dat het H200-beleid blijft, ook al steunde hij een week eerder strengere limieten. The Information meldt dat het hoofd van BIS binnen Commerce haast zette achter de verkoop ondanks waarschuwingen van andere diensten.</p>
+<p>Er komt ook druk van andere kanten. De procureur-generaal van Californië heeft Nvidia gedagvaard om te onderzoeken of chips in China terechtkwamen en of beleggers zijn misleid. Volgens Bloomberg moet Nscale een Amerikaanse licentie aanvragen om ByteDance op afstand toegang tot Nvidia-GPU's te geven. Trump zegt dat hij het bouwen van datacenters in het buitenland door Amerikaanse bedrijven wil blokkeren of zwaar belasten, maar dat is een uitspraak en nog geen regelgeving. Nvidia zou daarnaast in gevorderde gesprekken zijn om het diffusiemodelbedrijf Inception over te nemen voor 500 miljoen dollar of meer.</p>
+<p>Waarom het ertoe doet: de regels voor GPU-export en cloudtoegang veranderen vrij snel, en ze bepalen waar rekenkracht beschikbaar en betaalbaar is. Alles hier komt uit samenvattingen. Primaire bronnen heb ik niet kunnen openen.</p>
+<p><a href="https://www.techmeme.com">Techmeme</a></p>
+
+<h2>7. Meta's Muse en Signal: agents en privé-berichten</h2>
+<p>Volgens Ars Technica, zoals samengevat door TLDR InfoSec, maken medewerkers van Meta zich zorgen over Muse, een AI-agent die toegang zou hebben gehad tot versleutelde Signal-berichten en gesprekken van verschillende accounts door elkaar zou hebben gehaald. Meta noemt de berichten over het mengen van accounts hallucinaties en zegt dat een bug is verholpen. Het artikel zelf kon ik niet openen.</p>
+<p>Signal reageert volgens Techmeme door op telefoons screenshots standaard te beperken, zodat AI-agents privéchats niet kunnen lezen. Signal noemt die bescherming zelf onvolledig. Het is een voorbeeld van een probleem dat jij bij het bouwen van agents ook hebt: zodra een agent schermen of berichten kan lezen, is het scherm een aanvalsoppervlak.</p>
+<p>Google beschrijft in dezelfde week "Mirror Dimension for Agents", een gecontroleerde omgeving om browseragents te testen zonder het echte web aan te raken. Dat is een nuttig idee om na te bouwen voor je eigen browser- of computer-use-agents.</p>
+<p><strong>Probeer:</strong> maak een lijst met alles wat je agents kunnen lezen, van bestanden tot chats, en haal toegang weg die ze niet nodig hebben.</p>
+<p><a href="https://tldr.tech/infosec/2026-11-20">TLDR InfoSec</a> · <a href="https://blog.google/security/mirror-dimension-for-agents/">Google</a></p>
+
+<h2>8. Docker brengt Sandboxes en AI Governance naar voren</h2>
+<p>Docker heeft zijn merk vernieuwd, met als thema dat agents "geen workloads zijn maar actoren". In de navigatie staan Docker Sandboxes, AI Governance en een MCP Enterprise Gateway nu als nieuw. De aankondiging zelf is vooral een rebrand. Over beschikbaarheid, prijzen of installatie staat er niets in, en documentatie heb ik niet gezien.</p>
+<p>Voor jou is het interessant omdat het aansluit bij wat teams nu zelf bouwen: coding agents in een geïsoleerde omgeving laten draaien. Wil je meer dan een rebrand, lees dan de productpagina's van Sandboxes en AI Governance voordat je er iets op baseert.</p>
+<p><a href="https://www.docker.com/blog/meet-the-new-docker-built-to-run-on-trust/">Docker</a></p>
+
+<h2>Snel nog even</h2>
+<ul>
+<li>Gemini krijgt computer use in de Mac-app: taken draaien in een apart achtergrondvenster, in de VS en in het Engels, voor Google AI Plus, Pro en Ultra, op Apple Silicon met macOS 15 of nieuwer. <a href="https://blog.google/innovation-and-ai/products/gemini-app/computer-use-mac/">Google</a></li>
+<li>Apache Roller (4.0.0 tot en met 6.1.4) heeft een deserialisatiefout zonder inlog in XML-RPC die actief wordt misbruikt. Upgrade naar 6.1.6 of nieuwer. <a href="https://thehackernews.com/2026/11/critical-apache-roller-rce-flaw-under.html">The Hacker News</a></li>
+<li>Ruby2ßhell: een heap overflow van één byte in Ruby door hoofdletteromzetting van ß, met gevolgen voor GitHub Enterprise Server en GitLab. <a href="https://verialabs.com/ruby2shell/">Veria Labs</a></li>
+<li>Replit liet zien dat 32 agents een NumPy-taak 18,9 keer sneller kregen tegen 3,7 keer met één agent, maar alleen als de taken te splitsen zijn. <a href="https://frontier.replit.com/throwing-headcount-at-the-problem/">Replit</a></li>
+<li>Cloudflare heeft de gewichten van Clairic en Clairic-flash openbaar gemaakt, modellen die velden uit tekst, afbeeldingen en pdf's halen. <a href="https://blog.cloudflare.com/open-clairic/">Cloudflare</a></li>
+<li>OpenAI gebruikt Codex om prestatieproblemen in ChatGPT te onderzoeken, terwijl engineers beslissen wat live gaat. <a href="https://openai.com/index/how-openai-performance-factory-keeps-chatgpt-fast/">OpenAI</a></li>
+<li>Een Windows 11-component zou bijhouden welke coding agents en ontwikkeltools je draait. Dat is een claim van één blog, niet bevestigd door Microsoft. <a href="https://xusheng.dev/posts/windows-coding-agent-telemetry/">xusheng.dev</a></li>
+<li>Chrome houdt bestaande verbindingen per hostnaam en poort open, dus na een wijziging in je hosts-bestand kan Chrome minutenlang het oude IP blijven gebruiken. <a href="https://maxmart.github.io/posts/chrome-old-ip-after-hosts-file-edit/">maxmart.github.io</a></li>
+<li>Het Anthropic en OpenAI-resultaat over de Exponential Time Hypothesis krijgt een onafhankelijke controle door UC San Diego en MIT. Wat ik niet kon nagaan is of dat al een uitkomst heeft. <a href="https://today.ucsd.edu/story/computer-scientists-facilitating-an-independent-review-of-a-high-profile-open-ai-and-anthropic-resul">UC San Diego</a></li>
+<li>TfL haalde de Oyster-photocardsite offline na een aanval op ongeveer 265.000 klantaccounts. <a href="https://www.theregister.com/security/2026/11/19/tfl-takes-oyster-photocard-website-offline-after-attackers-compromise-customer-accounts/5310985">The Register</a></li>
+</ul>
+</article>
+<p><a href="./">← Alle digests</a></p>
+</body>
+</html>
