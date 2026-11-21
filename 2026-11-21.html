@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI-digest – zaterdag 21 november</title>
+<meta name="author" content="René Weteling">
+<meta property="og:title" content="AI-digest – zaterdag 21 november">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2026-11-21">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<article>
+<h1>AI-digest – zaterdag 21 november</h1>
+<p>Vandaag in het kort: Amerikaanse techaandelen hadden gisteren hun slechtste week sinds de pandemie, met Nvidia en chipaandelen als zwaarste klappers. Daarnaast nieuwe exportregels voor chips, OpenAI's prompttips voor GPT-6.2 Astra en Sol, een kleine open model van Thinking Machines dat op een laptop draait, en een Nvidia-paper die grote contextvensters in twijfel trekt. Anthropic meldt een bewijs van de Riemann-hypothese, dat nog niemand heeft bevestigd. Tweakers, NOS, Reuters en The Verge kon ik niet openen, en de TLDR-archiefpagina's van vandaag gaven alleen een aanmeldpagina. Ik steun dus op Techmeme, The Decoder, Simon Willison en OpenAI's eigen documentatie.</p>
+
+<h2>1. Techbeurs krijgt zware klap: Nvidia min 14 procent</h2>
+<p>Volgens The Decoder en Techmeme-koppen daalde de Nasdaq 100 gisteren 5,6 procent en over de hele week 10,4 procent. Dat is de slechtste week sinds de coronacrisis. De index staat ongeveer 20 procent onder de piek van oktober en dus formeel in bear market. De Amerikaanse halfgeleiderindex verloor 10,7 procent. De S&P 500 en de Dow gingen in correctie, en de Nasdaq is zijn winst van 2026 kwijt.</p>
+<p>Nvidia zakte 14 procent, na berichten dat de SEC zijn boekhouding bekijkt. Die berichten heb ik niet in een primaire bron kunnen terugvinden, dus behandel de SEC-claim als onbevestigd. Geheugen- en chipaandelen als Micron, Sandisk en Broadcom daalden ook. Anthropic, sinds donderdag beursgenoteerd, sloot op de tweede handelsdag ongeveer 8,5 tot 9 procent lager. Bloomberg noemt 88,91 dollar, een ander medium 88,30 dollar, de uitgifteprijs was 83 dollar. Reuters meldt bovendien dat de bank die de koers moest stutten, die positie heeft gesloten.</p>
+<p>Als oorzaken noemen de bronnen twijfel aan de enorme investeringen in AI-infrastructuur, de Nvidia-commotie rond China, politieke tegenwind na de Democratische winst bij de midterms, en hoge olieprijzen door de oorlog met Iran, die rente en inflatie hoog houden. Dat is hun duiding, geen vaststaand feit.</p>
+<p>Voor jou is dit geen reden om iets aan je stack te veranderen. Het is wel een signaal om te letten op prijzen en limieten: labs die minder makkelijk geld ophalen, gaan eerder op marge sturen. Houd een tweede leverancier achter de hand.</p>
+<p><a href="https://the-decoder.com/us-technology-stocks-suffer-their-worst-weekly-loss-since-the-pandemic-as-ai-doubts-pile-up/">The Decoder</a> · <a href="https://www.techmeme.com">Techmeme</a></p>
+
+<h2>2. Nieuwe exportregels en een chipsmokkelnetwerk</h2>
+<p>Volgens Nikkei Asia (via Techmeme) vallen onder de nieuwe Amerikaanse exportcontroles van donderdag meer chips dan voorheen, ook consumenten-SoC's. De details van de regels heb ik niet kunnen lezen. De Financial Times beschrijft daarnaast een netwerk van shell-bedrijven dat Nvidia-chips naar China zou hebben gesluisd.</p>
+<p>Dat sluit aan bij het bericht van gisteren dat tussen december en mei bijna 900.000 chips voor Chinese kopers werden goedgekeurd. Het beeld is wisselend: soepele vergunningen aan de ene kant, strengere regels en onderzoeken aan de andere. Reuters en NYT/Rhodium melden dat de grote Chinese techbedrijven hun investeringen in 2026 verdubbelen naar ongeveer 139 miljard dollar, terwijl de omzet van AI-labs daar onder de 8 procent daarvan blijft.</p>
+<p>Wat het voor jou betekent: GPU-beschikbaarheid en cloudprijzen hangen steeds meer af van beleid. Dat raakt vooral wie GPU's huurt voor eigen inference of fine-tuning.</p>
+<p><a href="https://www.techmeme.com">Techmeme</a></p>
+
+<h2>3. OpenAI geeft prompttips voor GPT-6.2 Astra en Sol</h2>
+<p>De modellen <code>gpt-6.2-astra</code> en <code>gpt-6.2-sol</code> zijn sinds 17 november in de API beschikbaar. Astra is voor de zwaarste taken, Sol voor complex werk tegen lagere kosten. OpenAI's documentatie beschrijft nu hoe je ze het best aanstuurt.</p>
+<p>Drie dingen vallen op. Het model is standaard korter en directer, dus een regel als "wees beknopt" in je systeemprompt kan nu te veel doen. Het stelt vaker een vervolgstap voor en wacht op bevestiging. Bij langere taken raadt OpenAI aan te zeggen dat het redelijke, omkeerbare aannames moet maken, die moet benoemen en door moet werken. Stoppen en vragen hoort alleen bij een grote scopewijziging, een blokkade, een beslissing van de gebruiker of een onomkeerbare actie. En voor nieuwe integraties begin je op <code>reasoning.effort</code> medium. Wie nu <code>none</code> of <code>minimal</code> gebruikt, moet naar <code>low</code>.</p>
+<p>Dit zijn precies de dingen die een coding agent in Codex of in je eigen backend irritant of juist prettig maken. Prijzen en contextvenster staan niet op de pagina die ik las, dus die kan ik niet melden.</p>
+<p><strong>Probeer:</strong> zet een bestaande agent-prompt op Sol, haal de "wees beknopt"-regels weg en voeg de aanname-instructie toe. Vergelijk het aantal onnodige vragen.</p>
+<p><a href="https://developers.openai.com/api/docs/guides/latest-model/gpt-6.2-astra">OpenAI docs</a> · <a href="https://the-decoder.com/openai-shares-new-prompting-tips-for-gpt-6-2-astra-and-sol-to-fix-brief-answers-and-unnecessary-questions/">The Decoder</a></p>
+
+<h2>4. Inkling 2 Mini: klein open model dat in lussen denkt</h2>
+<p>Thinking Machines heeft Inkling 2 Mini uitgebracht onder Apache 2.0, met gewichten op Hugging Face. Het is een mixture-of-experts-model met 26,4 miljard parameters in totaal en 5,4 miljard actief per token, voor tekst en beeld, met een contextvenster van een miljoen tokens.</p>
+<p>Het bijzondere is de architectuur: een looped transformer. Twaalf van de 24 lagen worden drie keer achter elkaar doorlopen, zodat het model intern langer kan nadenken zonder meer tekst te schrijven. Volgens The Decoder, die zich op Thinking Machines en Artificial Analysis beroept, scoort het 48,2 procent op DeepSWE v1.1 en is het de beste open optie onder 100 miljard parameters voor agentic coding. Op de Artificial Analysis Intelligence Index staat het gelijk met Qwen3.8 27B, bij ongeveer zes keer lagere kosten en vier keer de snelheid. Het draait op een Mac met minstens 32 GB geheugen of op een DGX Spark. Dit zijn de cijfers van de makers en een derde partij, niet van mij.</p>
+<p>Voor jou is het interessant als lokale optie voor goedkope agent-subtaken of privacygevoelige data, waar je geen API wilt aanroepen.</p>
+<p><strong>Probeer:</strong> laad de gewichten op een Mac of via de Tinker Playground en laat het een paar echte tickets uit je Django-repo proberen.</p>
+<p><a href="https://the-decoder.com/new-open-model-inkling-2-mini-thinks-in-loops-to-solve-problems-with-fewer-words-and-still-runs-on-a-laptop/">The Decoder</a></p>
+
+<h2>5. Anthropic-wiskundige claimt bewijs van de Riemann-hypothese</h2>
+<p>Levent Alpöge van Anthropic schrijft dat hij met Claude een bewijs van de Riemann-hypothese heeft gevonden, dat volgens hem ook de gegeneraliseerde variant dekt. Het bewijs bestaat alleen als Lean-code in 14 pakketten. Een uitgeprinte versie zou volgens hem meer dan 250.000 pagina's beslaan. Een leesbare versie volgt over enkele maanden. Hij zegt dat Claude het sleutelinzicht leverde: de lengte van de keten moet meeschalen met de wortel van de reekslengte.</p>
+<p>Niemand heeft dit onafhankelijk bevestigd. Uren later publiceerde Ravi Vakil, voorzitter van de AMS, een volledig menselijk concept van Alessandro Masullo voor dezelfde gegeneraliseerde hypothese. Acht uur daarna schreef hij dat meerdere mensen problemen in dat concept meldden, deels gevonden met AI-modellen. Lean controleert elke stap, maar niet of het probleem juist is vertaald naar code. Die controle is volgens The Decoder nog niet gemeld.</p>
+<p>Eerder dit jaar stelde Anthropic ook een ondergrens voor nulpunten bij van 41,6 naar 67,2 procent, wat Scientific American als geen bewijs van de hypothese zelf zag. Wacht dus op verificatie voordat je er iets van aanneemt. Voor jou is vooral het werkpatroon interessant: lange Claude Code-sessies met formele verificatie als vangnet.</p>
+<p><a href="https://the-decoder.com/hours-after-anthropic-claims-a-claude-proof-of-the-riemann-hypothesis-stanford-releases-an-all-human-competing-draft/">The Decoder</a> · <a href="https://simonwillison.net/2026/nov/20/">Simon Willison</a></p>
+
+<h2>6. Nvidia-onderzoekers: grote contextvensters zijn een doodlopende weg</h2>
+<p>Een Nvidia-onderzoeksteam stelt volgens The Decoder dat modellen zelden een volledig contextvenster nodig hebben. In veel tests werkten periodieke samenvattingen en gerichte opzoekacties ongeveer net zo goed, tegen lagere kosten. Het artikel zit grotendeels achter een betaalmuur en de paper zelf heb ik niet gevonden, dus cijfers en testopzet kan ik niet geven.</p>
+<p>De richting is wel herkenbaar. Een agent die een lopende samenvatting bijhoudt en details ophaalt via zoekopdrachten, kost minder tokens dan een agent die het hele transcript meesleept. Voor jouw RAG- en agentbackends op Postgres met pgvector is dat een bevestiging van een bekend ontwerp, geen nieuw idee.</p>
+<p><strong>Probeer:</strong> meet bij een van je agents hoeveel invoertokens je per stap betaalt en probeer een samenvatting plus pgvector-opzoeking in plaats van de volledige historie.</p>
+<p><a href="https://the-decoder.com/nvidia-researchers-argue-huge-ai-context-windows-are-a-dead-end/">The Decoder</a></p>
+
+<h2>7. Gemini 4: xhigh kost veel tokens, en token fraud neemt toe</h2>
+<p>Simon Willison werkte zijn <code>llm-gemini</code>-plugin bij (0.38.1) met het niveau <code>xhigh</code>, dat Gemini 4 Hydrogen en Neon ondersteunen, maar Carbon niet. Zijn meting met één prompt: Hydrogen op <code>high</code> gebruikte 5.311 outputtokens (3,99 cent), op <code>xhigh</code> 31.477 tokens (23,61 cent), met een duidelijk beter resultaat. Neon op <code>xhigh</code> gebruikte 26.546 tokens (39,83 cent). Eén prompt zegt weinig, maar het laat zien hoe sterk het kostenverschil per niveau is.</p>
+<p>Verder beschrijft hij het verhaal van Claire Vo, oprichter van ChatPRD. Haar gratis proefperiode werd misbruikt voor het doorverkopen van tokens en voor commercieel gebruik, onder meer door een studio voor Roblox- en Fortnite-kaarten. Ze stopt met gratis trials. Willison veronderstelt dat de veelgebruikte pelikaan-op-fiets-prompt wordt gebruikt om te zien welk model er achter een dienst zit. Dat is zijn vermoeden.</p>
+<p>Heb je zelf een product met een gratis laag en een LLM erachter, dan is dit een reële kostenpost: rate limits, verificatie en een plafond per account horen erbij.</p>
+<p><a href="https://simonwillison.net/2026/nov/20/">Simon Willison</a></p>
+
+<h2>8. Grote deals terwijl de markt wankelt</h2>
+<p>Techmeme meldt, via FT en The Information, dat Amazon dicht bij een overname van het AI-bedrijf Decart voor 7,5 miljard dollar is, mogelijk al volgende week. Volgens Bloomberg voert CrowdStrike gesprekken over een overname van Zscaler, waarmee een bedrijf van circa 265 miljard dollar zou ontstaan. Zscaler steeg 15 tot 18 procent. WSJ schrijft dat Databricks in een vroeg stadium praat over een financieringsronde tegen een waardering van circa 225 miljard dollar, tegen 190 miljard in augustus. Oracle zegt dat zijn OpenAI-contract volledig gefinancierd is.</p>
+<p>Het zijn onbevestigde gesprekken en koppen, geen afgesloten deals. Het patroon is wel dat geld nog steeds naar beveiliging en dataplatformen stroomt, ook nu AI-infrastructuur onder druk staat.</p>
+<p><a href="https://www.techmeme.com">Techmeme</a></p>
+
+<h2>Snel nog even</h2>
+<ul>
+<li>Cursor overweegt volgens CNBC (via Techmeme) om Chinese open-weight modellen uit te faseren vanwege geopolitiek risico. Composer 2 is gebouwd op Kimi K2.5. Ik kon dit zelf niet bevestigen. <a href="https://www.techmeme.com">Techmeme</a></li>
+<li>OpenAI zegt dat nieuwe maatregelen pogingen om het beschermde redeneerproces van GPT-6.2 Astra en Sol uit te lezen sterk verminderen. Cijfers heb ik niet gezien. <a href="https://the-decoder.com/openai-makes-it-much-harder-for-attackers-to-extract-how-its-latest-ai-models-think/">The Decoder</a></li>
+<li>ByteDance en Amerikaanse universiteiten brengen Axion 1.0 uit, een open agentmodel dat met drie trainingsfasen volgens henzelf met topmodellen meedoet. Details zitten achter een betaalmuur. <a href="https://the-decoder.com/bytedance-argues-most-ai-training-phases-are-unnecessary-and-backs-it-up-with-a-competitive-open-model/">The Decoder</a></li>
+<li>Perplexity Computer kan eigen skills maken en bijwerken op basis van eerdere sessies. <a href="https://www.perplexity.ai/hub/blog/self-improving-skills">Perplexity</a></li>
+<li>Vercel Board is een experimenteel prikbord waar agents taken claimen en updates plaatsen. <a href="https://vercel.com/blog/introducing-vercel-board">Vercel</a></li>
+<li>Uit tests blijkt dat modellen op een gedeelde inference-server via kleine verschuivingen in rekentijd met elkaar kunnen communiceren. Relevant als je tenants op dezelfde GPU zet. <a href="https://www.lesswrong.com/posts/7wzWuLP3HhyBLmKfo/models-can-communicate-via-inference-servers-despite-being">LessWrong</a></li>
+<li>Apple's FastFrames genereert 480p-video snel genoeg voor interactief gebruik, met 36 ms per frame voor het kleinste model. <a href="https://apple-aiml-research.github.io/ml-fastframes/">Apple</a></li>
+<li>De FBI onderzoekt een vermoedelijke inbraak in de NCIC-database, de tweede in korte tijd, meldt CNN via Techmeme. <a href="https://www.techmeme.com">Techmeme</a></li>
+<li>PostgreSQL 19 kwam twee maanden later uit, mede door een stroom van door AI gemelde kwetsbaarheden, schrijft Willison. <a href="https://simonwillison.net/2026/nov/20/">Simon Willison</a></li>
+</ul>
+</article>
+<p><a href="./">← Alle digests</a></p>
+</body>
+</html>
