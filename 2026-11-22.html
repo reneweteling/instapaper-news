@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI-digest – zondag 22 november</title>
+<meta name="author" content="René Weteling">
+<meta property="og:title" content="AI-digest – zondag 22 november">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2026-11-22">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<article>
+<h1>AI-digest – zondag 22 november</h1>
+<p>Vandaag in het kort: Nvidia zoekt een nieuwe topman en Jensen Huang moet mogelijk getuigen voor de Amerikaanse Senaat. Dragos liet zien dat goedkope inferentieproviders achter routers als OpenRouter API-sleutels stelen en prompts meelezen. De Lean-gemeenschap bevestigt het Riemann-bewijs van Anthropic. Verder nieuwe cijfers over de stijl van GPT-6.2, een benchmark waarin coding agents op een gesimuleerde werkvloer slecht scoren, een monitor-API van Perplexity en OpenAI's pleidooi voor gedeelde limieten. Tweakers, Reuters, The Guardian, Ars Technica en de FT waren niet bereikbaar en de TLDR-pagina's gaven alleen een aanmeldpagina. Ik steun daarom vooral op Techmeme, The Decoder, NOS en de primaire bronnen zelf.</p>
+
+<h2>1. Nvidia zonder Huang: Senaat wil antwoorden</h2>
+<p>Nvidia-topman Jensen Huang is op donderdag 12 november per direct opgestapt, meldt NOS. Aanleiding zijn berichten van The New York Times over een affaire met een directe medewerker, in strijd met de gedragscode, en eerdere berichten over zijn relatie met Alice Huang, een voormalig directeur van het Singaporese Megaspeed, een grote Nvidia-klant. Bronnen zijn het oneens over de vraag of zij voor China spioneerde. De betrokken medewerker heeft dit niet bevestigd.</p>
+<p>CFO Colette Kress is interim-CEO en Nvidia zoekt een opvolger, binnen en buiten het bedrijf. Senator Tim Scott heeft Huang gevraagd om op 3 december vrijwillig te verschijnen voor de bankencommissie van de Senaat, anders kan hij gedagvaard worden. Ook Huis-commissies willen hem achter gesloten deuren horen over de zorgen rond Chinese inlichtingendiensten. Handelsminister Lutnick zou volgens anonieme functionarissen pogingen hebben tegengehouden om de exportregels voor AI-chips naar China aan te scherpen. Zijn ministerie zegt dat hij uit eigen beweging verschijnt.</p>
+<p>Nvidia verloor in vijf dagen volgens NOS ongeveer 550 miljard dollar beurswaarde. De koersdaling van gisteren stond al in de vorige digest. Voor jou is de praktische kant: de roadmap en de leveringen van GPU's zijn niet in gevaar gebracht door dit bericht, maar bestuurlijke onzekerheid en een mogelijk strengere exportlijn kunnen de beschikbaarheid en de prijs van cloud-GPU's raken. Dat is mijn inschatting, geen vaststaand feit.</p>
+<p><a href="https://nos.nl/artikel/2639176-topman-huang-van-chipbedrijf-nvidia-vertrekt-per-direct-vanwege-affaires">NOS</a> · <a href="https://nos.nl/artikel/2639261-opgestapte-nvidia-topman-moet-getuigen-voor-senaat-om-affaires">NOS</a></p>
+
+<h2>2. Goedkope inferentieproviders stelen sleutels en lezen prompts mee</h2>
+<p>Het beveiligingsbedrijf Dragos stuurde tussen juli en november ongeveer twee miljoen AI-verzoeken met nepgegevens, zogenoemde canary tokens, door routers en marktplaatsen voor inferentie. Het resultaat volgens Dragos en The Decoder: minstens drie providers waren gecompromitteerd en wisten dat zelf niet. In het grootste geval verzamelden aanvallers honderden AWS-sleutels, ook uit verzoeken die de provider had afgewezen. Binnen een dag werden de sleutels getest en werd S3-opslag doorzocht.</p>
+<p>Daarnaast konden doorverkopers op een marktplaats prompts lezen door simpelweg de laagste prijs te noteren en logging aan te zetten. Privacy-instellingen zoals Zero Data Retention werden vaak genegeerd. Geheime test-URL's uit prompts werden in meer dan de helft van de verzoeken bezocht, ook bij Amerikaanse providers. OpenRouter heeft drie providers verwijderd, de ZDR-status van 125 endpoints ingetrokken en gebruikers gemaild die MiniMax-modellen gebruikten.</p>
+<p>Dit raakt iedereen die een gateway gebruikt om modellen te wisselen of kosten te drukken. Elke schakel kan het volledige verzoek en antwoord lezen. Stuur dus geen echte sleutels of klantdata mee in prompts, en kies bij routers bewust welke providers mogen meedoen.</p>
+<p><strong>Probeer:</strong> zet in je OpenRouter-instellingen een allowlist van providers aan en plaats een canary token (bijvoorbeeld een nep-AWS-sleutel) in een testprompt. Zo zie je of er iets mee gebeurt.</p>
+<p><a href="https://the-decoder.com/security-researchers-show-how-cheap-ai-inference-providers-steal-keys-and-snoop-on-users/">The Decoder</a> · <a href="https://www.dragos.com/blog/ai-supply-chain-security-canary-tokens">Dragos</a></p>
+
+<h2>3. Lean-gemeenschap bevestigt het Riemann-bewijs</h2>
+<p>In de vorige digest meldde ik dat het bewijs van Levent Alpöge (Anthropic) nog niet bevestigd was. Dat is veranderd. De Lean- en Mathlib-gemeenschap schrijft dat ze er volledig vertrouwen in heeft. Het bewijs is op 20 november gepubliceerd als bibliotheek van ongeveer 17 miljoen regels Lean. Tientallen mensen compileerden het onafhankelijk, en meerdere onafhankelijke checkers keurden het geëxporteerde bewijs goed.</p>
+<p>Belangrijk is wat er wel en niet is gecontroleerd. De gestelde stelling is Mathlib's bestaande definitie van de Riemann-hypothese, en een aparte test bevestigt dat de bewezen stelling daarmee overeenkomt. Het is dus een formele controle: de code bewijst de juiste stelling. Een wiskundige uitleg ontbreekt nog, en de controle duurde ongeveer een dag. Het is een gemeenschapsverklaring, geen peer review. Het concept van Stanford van gisteren staat hier los van.</p>
+<p>Voor jou is het werkpatroon interessant: een model schrijft de oplossing, een formele checker beoordeelt haar. Bij code kom je dat dichtbij met sterke tests en typechecks als vangnet.</p>
+<p><a href="https://leanprover-community.github.io/blog/posts/riemann-hypothesis/">Lean community</a> · <a href="https://the-decoder.com/lean-and-mathlib-community-officially-confirms-levent-alpoges-proof-of-the-riemann-hypothesis-is-correct/">The Decoder</a></p>
+
+<h2>4. GPT-6.2 is korter en directer, maar zegt minder vaak dat het twijfelt</h2>
+<p>Artificial Analysis heeft met zijn AA-PersonalityBench gemeten wat de prompttips van OpenAI voor GPT-6.2 Astra en Sol in de praktijk doen. De test gebruikt 900 Engelse vragen zonder systeemprompt, beoordeeld door drie AI-modellen. Astra gaat van gemiddeld 352 naar 210 woorden per antwoord, Sol van 337 naar 223. Het aantal kopjes per antwoord zakt van ongeveer twee naar bijna nul.</p>
+<p>De prijs: de score voor het toegeven van onzekerheid daalt bij Astra van 96 naar 24 en bij Sol van 98 naar 51. Op de transparantie-index staan Astra op 41 en Sol op 57, tegen 81 voor Claude Fable 5.2 en 90 voor Claude Opus 5.5. Dat zijn relatieve rangschikkingen voor communicatiestijl, geen juistheid. Opus 5.5 scoort ook het hoogst op informativiteit.</p>
+<p>Voor agent-backends is dit relevant. Een model dat zelden zegt dat het iets niet weet, is lastiger te vertrouwen in een pipeline zonder controle. Het betekent niet dat Astra slechter is, maar wel dat je een expliciete stap moet inbouwen waarin het model zekerheid moet aangeven.</p>
+<p><strong>Probeer:</strong> vraag in je extractie- of RAG-prompt om een veld <code>confidence</code> met een korte onderbouwing, en meet hoe vaak het model "onbekend" antwoordt.</p>
+<p><a href="https://the-decoder.com/gpt-6-2-astra-and-sol-get-to-the-point-faster-but-score-lower-on-transparency-than-claude/">The Decoder</a></p>
+
+<h2>5. Coding agents halen op de gesimuleerde werkvloer minder dan één op de tien taken</h2>
+<p>Een nieuwe test zet coding agents aan het werk als digitale medewerkers in een gesimuleerd softwarebedrijf, met collega's, projectborden en chatgeschiedenis. Volgens The Decoder voltooien zowel Claude Opus 5.5 als GPT-6 Astra minder dan één op de tien taken volledig. Op geïsoleerde tests scoren dezelfde modellen bijna maximaal. De naam van de benchmark staat niet in het zichtbare deel van het artikel, dat grotendeels achter een betaalmuur zit, dus de testopzet kan ik niet beoordelen.</p>
+<p>Het past bij wat veel teams ervaren: een agent die één functie schrijft, is iets anders dan een agent die over dagen een ticket afmaakt en rekening houdt met wat collega's zeggen. METR waarschuwt in dezelfde lijn dat veelgebruikte tests de praktijk kunnen overschatten, omdat ontwikkelaars modellen op sterk gelijkende omgevingen trainen. Tegelijk schrijft METR dat de taaklengte die modellen aankunnen ongeveer elke 3,6 maanden verdubbelt, en dat een simpele extrapolatie in juli 2027 uitkomt op 200 uur bij 50 procent succes. Dat is een extrapolatie, geen voorspelling.</p>
+<p>Voor jou: beoordeel agents op je eigen repo en werkwijze, niet op leaderboard-scores.</p>
+<p><a href="https://the-decoder.com/ai-coding-agents-ace-isolated-tests-but-complete-fewer-than-one-in-ten-tasks-in-a-simulated-workplace/">The Decoder</a> · <a href="https://the-decoder.com/ai-is-getting-better-faster-than-experts-can-reliably-test-whether-new-systems-are-safe-metr-warns/">The Decoder over METR</a></p>
+
+<h2>6. Perplexity Monitor API: zoeken als permanente wachter</h2>
+<p>Perplexity heeft een Monitor API uitgebracht. Je maakt met één verzoek een monitor met een zoekopdracht of maximaal tien pagina's, een doel in gewone taal, een schema en een webhook. Webmonitors draaien een zoekopdracht op schema. Paginamonitors bewaren een baseline en geven daarna een tekstdiff. Een beslismodel beoordeelt relevantie, bronbetrouwbaarheid, nieuwheid en actualiteit, en stuurt alleen een webhook als alle drempels gehaald zijn, met een betrouwbaarheidsscore.</p>
+<p>Je kunt van elke 15 minuten tot wekelijks plannen, of een cron gebruiken. Webhooks zijn ondertekend en mislukte leveringen worden herhaald. De prijs is 1 dollar per 1.000 succesvolle runs bij webmonitors en 1 dollar per 1.000 opgehaalde URL's bij paginamonitors. De claim dat Perplexity in een eigen test van 60 onderwerpen 63 verse pagina's vond tegen 20 bij Firecrawl en 15 bij Exa komt van Perplexity zelf en is volgens het bedrijf een vroeg resultaat.</p>
+<p><strong>Probeer:</strong> zet een paginamonitor op de changelogs van de API's waar jij van afhangt, en laat de webhook een bericht naar je eigen kanaal sturen in plaats van elke ochtend handmatig te kijken.</p>
+<p><a href="https://the-decoder.com/perplexitys-new-monitor-api-turns-web-search-from-a-one-off-query-into-a-nonstop-watchdog/">The Decoder</a></p>
+
+<h2>7. OpenAI publiceert perplexity-cijfers en pleit voor gedeelde limieten</h2>
+<p>OpenAI publiceert interne perplexity-cijfers (log-perplexity, lager is beter) op zijn eigen codebase-dataset en stelt dat dit een gedeelde maatstaf voor laboratoria moet worden. GPT-3.5 zit rond 0,99 en GPT-4 rond 0,91. Onder 0,8 zouden volgens OpenAI transformatieve vermogens op het gebied van cybersecurity en wiskunde ontstaan. Rond 0,76 begonnen modellen opmerkelijke resultaten te halen op open wiskundeproblemen.</p>
+<p>Het voorstel: frontier-ontwikkelaars stellen samen normen op voor evaluatie en red-teaming van veiligheidsargumenten, en spreken gezamenlijke limieten af die ze niet overschrijden voordat een concrete monitoringmijlpaal is bereikt. OpenAI noemt zelf de zwaktes: laboratoria gebruiken andere datasets, de maat meet geen praktische taken en negeert winst uit methoden na de pretraining. Het bedrijf verwacht ook dat AI-onderzoek aan pretraining zelf al in 2027 voor een plotselinge versnelling kan zorgen. Het is een voorstel van een van de betrokken partijen, geen afspraak.</p>
+<p>Voor jou is dit vooral beleidsachtergrond. Het wijst erop dat de lat voor modelvrijgave kan gaan verschuiven, en dat kan invloed hebben op wanneer en hoe nieuwe modellen beschikbaar komen.</p>
+<p><a href="https://openai.com/index/perplexity-and-intelligence">OpenAI</a></p>
+
+<h2>Snel nog even</h2>
+<ul>
+<li>De Autoriteit Persoonsgegevens raadt de aanschaf van AI-camerabrillen af na tests met zes modellen. Eén bril beweerde bij een gesimuleerd noodgeval dat er al een ambulance onderweg was. De AP wil dat politici een verbod overwegen. <a href="https://nos.nl/artikel/2640119-autoriteit-persoonsgegevens-ai-camerabrillen-brengen-veiligheid-in-gevaar">NOS</a></li>
+<li>Dell, HPE, Lenovo en Supermicro eisen volgens de FT hogere prijzen voor AI-servers, maanden na het tekenen van contracten. Ik kon het artikel zelf niet lezen. <a href="https://www.techmeme.com">Techmeme</a></li>
+<li>Volgens de NYT zet de Chinese inlichtingendienst een campagne op om bedrijven aan geavanceerde AI-chips te helpen, en volgens de WSJ was Li Ming uit Singapore een sleutelfiguur in de smokkel. Beide berichten komen via Techmeme en ik heb ze niet zelf kunnen lezen. <a href="https://www.techmeme.com">Techmeme</a></li>
+<li>Reuters meldt volgens Techmeme dat Anthropic bij zijn beursgang sommige banken beperkte tot teams van vier personen en een adviesverbod van zes maanden voor concurrenten wilde. <a href="https://www.techmeme.com">Techmeme</a></li>
+<li>Meta kan dit jaar tot 145 miljard dollar aan AI uitgeven, schrijft The Motley Fool. Dit is een schatting van een financieel medium. <a href="https://www.fool.com/investing/2026/11/21/mark-zuckerberg-s-meta-platforms-is-pouring-up-to-usd145-billion-into-ai-this-year-investors-should-watch-this-1-number/">The Motley Fool</a></li>
+<li>Tesla begint met de uitrol van FSD v15, met een visualisatie van wat de auto om zich heen ziet en van plan is. <a href="https://gizmodo.com/its-like-gta-musk-touts-video-game-like-update-to-tesla-fsd-2000843584">Gizmodo</a></li>
+<li>Ubisoft start Motherbrain, een dochterbedrijf voor AI-gestuurde NPC's en game masters. <a href="https://www.gamesindustry.biz/ubisoft-launches-motherbrain-a-new-subsidiary-focused-on-ai-driven-gameplay-innovation">GamesIndustry.biz</a></li>
+<li>Graham Dumpleton schrijft een serie over Muru, een Rust-server voor Python ASGI- en WSGI-apps, met afleveringen over lazy imports en tracing in de toolbar. Interessant als je Django draait. <a href="https://simonwillison.net/2026/Nov/21/muru/">Simon Willison</a></li>
+<li>Claude Code 2.1.327 van 17 november verlaagt volgens claudekit.io het tokengebruik voor subagent-samenvattingen op Bedrock, Vertex AI en Foundry. Datum en inhoud komen van een derde partij, controleer de officiële changelog. <a href="https://claudekit.io/en/updates/claude-code-2-1-327/">claudekit.io</a></li>
+</ul>
+</article>
+<p><a href="./">← Alle digests</a></p>
+</body>
+</html>
