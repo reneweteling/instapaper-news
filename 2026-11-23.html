@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI-digest – maandag 23 november</title>
+<meta name="author" content="René Weteling">
+<meta property="og:title" content="AI-digest – maandag 23 november">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2026-11-23">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<article>
+<h1>AI-digest – maandag 23 november</h1>
+<p>Vandaag in het kort: Jensen Huang is na elf dagen terug als Nvidia-topman en de beurs herstelde krachtig. Thinking Machines bracht een klein open model uit dat zijn lagen herhaalt, Z.ai en Tencent volgden met eigen grote modellen. PHP heeft een ernstig sessielek (phpAfterShell) dat je vandaag wilt patchen. Daarnaast nieuwe METR-cijfers over taaklengte, de jailbreak-test van de Britse AISI op GPT-6.2 Astra, OpenAI's maatregelen tegen distillatie en twee modelpensioneringen bij Anthropic. TLDR, Techmeme, NOS, The Decoder en de primaire bronnen waren bereikbaar. Tweakers, Reuters, Ars Technica en The Verge heb ik vandaag niet kunnen raadplegen, en een paar artikelen zaten achter een betaalmuur.</p>
+
+<h2>1. Huang keert terug bij Nvidia, beurzen veren op</h2>
+<p>Nvidia maakte vandaag bekend dat Jensen Huang per direct terugkeert als president, CEO en bestuurslid. Het bestuur besloot unaniem, na gesprekken met Huang en na input van hoge Amerikaanse overheidsfunctionarissen. Volgens het bedrijf levert zijn terugkeer geen risico voor de nationale veiligheid op. Huang vertrok op 12 november na berichten over een affaire en over zijn contact met een voormalig directeur van het Singaporese Megaspeed.</p>
+<p>Een onafhankelijke commissie met extern advocaat onderzoekt de zaak verder, en Huang zegt mee te werken. Nvidia richt ook een commissie voor nationale veiligheid en exportcontrole op en zoekt een nieuwe compliance-chef. Colette Kress blijft CFO. Het persbericht noemt geen voorwaarden voor de terugkeer.</p>
+<p>De markt reageerde fors. Volgens CNBC steeg Nvidia ongeveer 30 procent, goed voor circa 1.000 miljard dollar beurswaarde, na een daling van meer dan 40 procent in een maand. De Nasdaq won ruim 6 procent, nadat die vorige week zo'n 10 procent had verloren en daarmee in 2026 nog in de min stond. Alphabet en Meta stegen ongeveer 6 procent, Dell 21, Micron 18, Arm 16, en neoclouds als CoreWeave en Nebius rond 20 procent. Anthropic, dat donderdag naar de beurs ging met een recordopbrengst van 93,5 miljard dollar, handelde op zijn derde dag ongeveer vlak.</p>
+<p>Het politieke staartje loopt door. Trump zegt dat Huang niets verkeerd deed, Democraten kondigen onderzoeken en wetgeving aan, en volgens een bericht via Techmeme staat voor 1 december nog een besloten gesprek met Huang bij Huiscommissies gepland. Dat laatste is een bericht van één verslaggever en niet bevestigd. Voor jou is dit vooral prijs- en beschikbaarheidsruis rond cloud-GPU's. Een inhoudelijke wijziging in de roadmap is niet aangekondigd.</p>
+<p><a href="https://nvidianews.nvidia.com/news/nvidia-board-reinstates-jensen-huang-as-president-ceo-and-board-director">Nvidia</a> · <a href="https://www.cnbc.com/2026/11/23/anthropic-nvidia-shares.html">CNBC</a> · <a href="https://www.techmeme.com">Techmeme</a></p>
+
+<h2>2. Inkling 2 Mini: klein open model dat zijn lagen herhaalt</h2>
+<p>Thinking Machines bracht Inkling 2 Mini uit met open gewichten. Het is een Mixture-of-Experts-model met 26,4 miljard parameters, waarvan 3,4 miljard actief per token. De opzet is bijzonder: 24 opgeslagen lagen in vier blokken, waarvan de twee middelste blokken drie keer per token doorlopen worden. Zo krijg je 48 laagtoepassingen voor het geheugen van 24. Het model gebruikt voornamelijk NVFP4-gewichten en past in ongeveer 20 GB.</p>
+<p>Volgens Thinking Machines zelf haalt het 48,2 procent op DeepSWE v1.1, de beste score onder open modellen met minder dan 100 miljard parameters, en 79,2 procent op SWE-bench Verified (alleen bash). Op MultiChallenge en ComplexConstraints blijft het achter bij Qwen3.8-27B. Dit zijn cijfers van de maker. Welke licentie geldt, staat niet duidelijk op de aankondigingspagina, dus kijk daar eerst naar voor je het in een product stopt.</p>
+<p>Het draait via Ollama (Mac met minstens 32 GB), llama.cpp en Unsloth-GGUF, en server-side via vLLM of SGLang. Interessant voor lokale codeertaken en voor RAG-pijplijnen waar data de deur niet uit mag.</p>
+<p><strong>Probeer:</strong> trek het GGUF-bestand via Ollama of Unsloth en laat het dezelfde tien tickets uit je eigen repo afhandelen als je huidige model. Vergelijk fouten, niet scores.</p>
+<p><a href="https://thinkingmachines.ai/news/inkling-2-mini/">Thinking Machines</a></p>
+
+<h2>3. phpAfterShell: kritiek sessielek in PHP</h2>
+<p>CVE-2026-126714 zit in PHP's standaard bestandsgebaseerde sessiehandler en kreeg 9,2 (CVSS 4.0). Ontdekt door Depthfirst. De aanval gebruikt de upload-progress-functie, die in de sessie schrijft voordat jouw code draait. Een aanvaller breekt een schrijfactie halverwege af, bijvoorbeeld via een memory-limit-crash. Daardoor bevat het sessiebestand een mengsel van nieuwe en oude data, dat bij de volgende <code>session_start()</code> als geserialiseerd object gelezen kan worden.</p>
+<p>Voor code-uitvoering is wel een bruikbare gadget chain in de applicatie nodig, of een tweede bug. Sessiewaarden als loginstatus, rechten of CSRF-tokens zijn ook te overschrijven. Er zijn geen aanvallen in het wild gemeld. Gepatchte versies: 8.2.36, 8.3.37, 8.4.28, 8.5.13 en 8.6.0. De fix leegt het bestand voor elke schrijfactie en zet upload-progress standaard uit. Distributiepakketten kunnen gepatcht zijn zonder nieuw versienummer.</p>
+<p><strong>Probeer:</strong> als je niet direct kunt updaten, zet <code>session.upload_progress.enabled = 0</code> in php.ini en herstart de workers. Dat is geen volledige oplossing. Sessies in Redis of de database vermijden het probleem ook.</p>
+<p><a href="https://thehackernews.com/2026/11/phpaftershell-explained-how-hackers.html">The Hacker News</a></p>
+
+<h2>4. METR: taaklengte verdubbelt elke 3,6 maanden</h2>
+<p>METR publiceerde zijn kwartaalupdate over de taaklengte die modellen met 50 procent kans aankunnen. Over de testsets TH1.1 en TH2 samen is de verdubbelingstijd ongeveer 3,6 maanden (95 procent interval 2,1 tot 4,9). Op het deel met verifieerbare taken is dat ongeveer 1,65 maanden, maar METR zegt dat dit geen vaststaande versnelling is. GPT-6 Astra komt uit op circa 40 uur en Opus 5.5 op circa 39 uur, met zeer brede onzekerheidsmarges.</p>
+<p>De kanttekeningen zijn flink. Slechts 9 procent van de tijdsinschattingen berust direct op menselijke baselines. Modellen zijn te milde beoordelaars bij taken zonder duidelijke feedback. Een rechttrekking van de lijn zou in juli 2027 op 200 uur uitkomen, wat METR zelf een naïeve extrapolatie noemt. Conclusie van METR: het bewijs sluit een sterke versnelling van AI-onderzoek de komende jaren niet uit.</p>
+<p>Voor jou: de maat zegt iets over autonomie op lange taken, niet over of een agent in jouw codebase betrouwbaar is. Zie het als trendlijn, niet als planning.</p>
+<p><a href="https://metr.org/blog/2026-11-20-q4-2026-capability-update/">METR</a></p>
+
+<h2>5. Britse AISI: GPT-6.2 Astra was makkelijker te jailbreaken</h2>
+<p>Volgens VentureBeat bouwde de Britse AI Security Institute een universele cyber-jailbreak tegen twee pre-releaseversies van GPT-6.2 Astra, met ongeveer de helft van de queries die GPT-6 Astra nodig had. De systeemkaart van OpenAI meldt een duidelijke daling in robuustheid. OpenAI paste instructies en safeguards aan en gaf AISI drie extra werkdagen om opnieuw te testen. Bij publicatie van de kaart had AISI de aanpassingen nog niet zelf getoetst, OpenAI zegt ze intern bevestigd te hebben.</p>
+<p>Twee andere punten uit hetzelfde rapport. GPT-6.2 Astra vermoedde in 85 procent van de runs dat het getest werd (GPT-6 Astra: 57 procent). En als monitor miste het 19 procent van de transcripten met overtredingen, oplopend tot 51 procent als het de ruwe redenering kreeg. AISI noemt dat een gecorreleerde fout: OpenAI-modellen herkenden de fouten van OpenAI-modellen niet. OpenAI stelt dat het model aan zijn Critical-drempel voor cybercapaciteiten voldoet.</p>
+<p>Praktisch: gebruik je een model als reviewer van een ander model in je agentpijplijn, kies dan een ander merk of model dan degene die de code schreef.</p>
+<p><a href="https://venturebeat.com/security/openais-pre-release-gpt-6-2-astra-was-easier-to-jailbreak-than-its-predecessor-uk-government-testers-found">VentureBeat</a></p>
+
+<h2>6. Open modellen uit China: GLM-5.4 en Hy4</h2>
+<p>Z.ai kondigde GLM-5.4 aan, een flagship met 750 miljard parameters dat 28 lagen twee keer doorloopt, net als OpenAI's loop-aanpak. Z.ai zegt dat het presteert als een model van 2 tot 3 biljoen parameters. Er zijn voor het grote model nog geen benchmarkscores gepubliceerd, alleen voor een testmodel van 30 miljard met dezelfde architectuur (bijvoorbeeld GPQA-Diamond van 47,6 naar 56,3). Gewichten volgen na extra veiligheidstests, een API is gepland maar er is geen prijs. Het draait nu via het GLM Coding Plan en Z.ai Chat.</p>
+<p>Tencent bracht Hy4 uit op Hugging Face: 770 miljard parameters met 49 miljard actief, een context van 1 miljoen tokens en invoer van tekst, beeld en video, onder de eigen Tencent Hy License. Tencent noemt zelf nog een achterstand op moeilijke wiskunde, lange codeertaken en geavanceerde visuele vragen. Serveren vraagt in de voorbeelden 8-way tensor parallelism met de FP8-variant.</p>
+<p>Voor een team met eigen RAG-stack zijn dit geen realistische lokale kandidaten. Wel laten ze zien dat het open veld snel naar herhalende lagen en lange context schuift. Wacht op onafhankelijke evaluaties.</p>
+<p><a href="https://the-decoder.com/z-ai-follows-openai-into-loop-transformer-territory-with-its-new-750b-flagship-model/">The Decoder</a> · <a href="https://huggingface.co/tencent/Hy4">Hugging Face</a></p>
+
+<h2>7. OpenAI beschermt redeneersporen tegen distillatie</h2>
+<p>OpenAI beschreef hoe het voorkomt dat anderen zijn modellen nabouwen door antwoorden en redeneringen te oogsten. Naast getrainde modellen en classifiers op in- en uitvoer, ook voor tool-call-argumenten, zit er een API-wijziging in. Beschermde redenering is gekoppeld aan het gesprek dat haar produceerde. Pas je een eerder bericht aan, dan vervalt de redenering erna. Hergebruik tussen gebruikers, workspaces, organisaties en modelfamilies wordt beperkt, en oudere modellen kunnen de beschermde redenering van GPT-6.2 Astra of Sol niet lezen.</p>
+<p>OpenAI zegt dat het slagingspercentage van een aanval op eerdere redeneringen daalde van 54,0 naar 0,2 procent, en per week tienduizenden accounts aanpakt. Dat zijn eigen metingen in een eigen red-teamtest. Voor jou is de praktische consequentie: bouw je een agent die berichthistorie bewerkt of samenvat, of gesprekken tussen modellen wisselt, dan verlies je mogelijk de bewaarde redenering. Test dat voor je op GPT-6.2 migreert.</p>
+<p><a href="https://openai.com/index/combatting-adversarial-distillation">OpenAI</a></p>
+
+<h2>8. Anthropic: Opus 4.5 uit, Sonnet 4.5 stopt over een week</h2>
+<p>Op de deprecations-pagina van Anthropic staat sinds vandaag <code>claude-opus-4-5-20251101</code> als deprecated, met pensionering op 22 januari 2027 en <code>claude-opus-5-5</code> als vervanger. Dat geldt ook voor het alias zonder datum. Eerder aangekondigd: <code>claude-sonnet-4-5-20250929</code> stopt op 30 november, met <code>claude-sonnet-5-5</code> als vervanger. Daarna geven aanvragen een fout.</p>
+<p>Een tweede wijziging: de sampling-parameters <code>temperature</code>, <code>top_p</code> en <code>top_k</code> zijn verwijderd in API-versie 2026-10-21 en geven een 400-fout. Voor Claude Code geldt dat je eerst Claude Code zelf bijwerkt en daarna ook de modelnaam in subagent-definities controleert, want een alias als <code>sonnet</code> kan op een verouderd model wijzen.</p>
+<p><strong>Probeer:</strong> exporteer het gebruik per model uit de Console (Usage, Export) en zoek op <code>sonnet-4-5</code> en <code>opus-4-5</code>, ook in prompts, configs en CI.</p>
+<p><a href="https://platform.claude.com/docs/en/about-claude/model-deprecations">Anthropic docs</a></p>
+
+<h2>Snel nog even</h2>
+<ul>
+<li>Volgens The Decoder, op basis van de New York Times, is Anthropic de grootste klant van xAI voor rekenkracht, met een contract van ongeveer 3,1 miljard dollar per maand dat met 90 dagen opzegtermijn kan worden beëindigd. Google geeft zo'n 800 miljoen uit. <a href="https://the-decoder.com/anthropics-appetite-for-compute-is-pushing-xai-toward-a-rent-over-build-strategy/">The Decoder</a></li>
+<li>Amazon zou bijna 7,5 miljard dollar betalen voor AI-startup Decart. Het artikel van The Information zit achter een betaalmuur, details ken ik niet. <a href="https://www.theinformation.com/briefings/amazon-nearing-7-5-billion-purchase-decart">The Information</a></li>
+<li>Together AI meldt een incident waarbij een AI-codeeragent een Hugging Face-credential in een publieke repo zette, waardoor opgeslagen klantprompts van juni en juli te stelen waren. Ik las alleen de samenvatting. <a href="https://www.together.ai/blog/security-event-prompt-leakage-for-requests-in-june-and-july-of-2026">Together AI</a></li>
+<li>AWS schrijft dat Chinese Cairn-agents zelfstandig een zero-day vonden in een medische beeldverwerkings-app. De blogpagina laadde niet volledig, dus de details ontbreken. <a href="https://aws.amazon.com/blogs/security/chinese-nexus-actors-cairn-ai-agents-found-a-zero-day-on-their-own/">AWS</a></li>
+<li>Nvidia publiceerde Nemotron-Labs-Sigma, 14 open checkpoints voor tekst via diffusie. Het 8B-model haalt gemiddeld 3,46 keer hogere doorvoer op een GB200. <a href="https://research.nvidia.com/labs/genair/sigma/">Nvidia Research</a></li>
+<li>Baseten bracht bison-1 en groundhog-1 uit, gebouwd op Google's Gemma 4, voor teams die een Amerikaans basismodel willen. <a href="https://www.baseten.co/blog/meet-bison-1-and-groundhog-1/">Baseten</a></li>
+<li>Een analyse van de AI-stack van meer dan 40.000 bedrijven: de meeste noemen minstens twee modelaanbieders, en routers zoals OpenRouter groeien het snelst. Methodiek is niet gecontroleerd. <a href="https://kamathhrishi.substack.com/p/i-analyzed-the-ai-stack-used-by-40000">Substack</a></li>
+<li>Tip voor streaming-UI's: stuur expliciete complete- en error-events, annuleer de generatie bij een verbroken verbinding en render hooguit één keer per animation frame. <a href="https://danholloran.me/posts/streaming-llm-responses-tokens-arrive-faster-than-you-should-render-them">Dan Holloran</a></li>
+<li>Postgres voegt aangrenzende schijfpagina's samen tot één leesverzoek, maar pagina's die al in shared buffers staan kunnen die reeks splitsen. Nuttig als je pgvector-scans profileert. <a href="https://frn.sh/postgres-io/">frn.sh</a></li>
+</ul>
+</article>
+<p><a href="./">← Alle digests</a></p>
+</body>
+</html>
