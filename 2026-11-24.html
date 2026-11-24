@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI-digest – dinsdag 24 november</title>
+<meta name="author" content="René Weteling">
+<meta property="og:title" content="AI-digest – dinsdag 24 november">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2026-11-24">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<article>
+<h1>AI-digest – dinsdag 24 november</h1>
+<p>Vandaag in het kort: OpenAI en Cisco brachten Shirudo uit, een open-source runtime die Linux tijdelijk beschermt terwijl een patch nog uitgerold wordt. Amazon koopt de optimalisatietechniek van Decart voor naar verluidt 7,5 miljard dollar, vlak voor de verkoop van Trainium-chips. CrowdStrike neemt Zscaler over voor circa 43,9 miljard dollar. Een kritiek Cisco Expressway-lek wordt actief misbruikt, ChatGPT kreeg een nieuw chatmodel, en Nuxt 4.7 bevat proefondersteuning voor WebMCP. Bij Anthropic gaat het om Claude Ship en een MCP-update. TLDR, Techmeme, NOS, The Decoder, Simon Willison en de primaire bronnen waren bereikbaar. Tweakers, Reuters, Ars Technica en The Verge heb ik niet geraadpleegd.</p>
+
+<h2>1. Shirudo: tijdelijke schilden voor Linux zolang de patch er nog niet is</h2>
+<p>OpenAI en Cisco publiceerden Shirudo, een open-source runtime voor Linux. Het idee: tussen de bekendmaking van een kwetsbaarheid en het uitrollen van de patch zit vaak een gat van dagen of weken. Shirudo vult dat gat met een zogenoemd shield, een eBPF-programma dat het gedrag blokkeert dat een exploit nodig heeft, zonder dat je de machine of het proces herstart.</p>
+<p>Een operator moet elk shield goedkeuren voor het actief wordt. Je kunt vooraf zien wat een shield met je applicaties doet. Shields zijn cryptografisch ondertekend en een TPM registreert wanneer er een geladen of verwijderd wordt. In de enige gedocumenteerde test genereerde Codex een shield dat een extra invoercontrole toevoegde aan Java's Base64-decoder in een draaiend Elasticsearch-proces, waarmee een Java4Shell-exploit werd tegengehouden. Het project noemt zichzelf een eerste stap, dus één testcase is nog geen bewijs voor brede toepasbaarheid.</p>
+<p>De licentie is BSD 2-Clause, de BPF-programma's zijn dubbel gelicenseerd onder BSD en GPL. Voor jou als iemand met Docker-hosts en Postgres op eigen servers is dit vooral interessant als noodmaatregel bij een kernel- of runtimelek. Het vervangt patchen niet.</p>
+<p><strong>Probeer:</strong> volg de VM-quickstart in de docs en laad één test-shield. Zo zie je hoe goedkeuring en ondertekening werken voor je het op iets echts overweegt. Op 15 december is er een technische webinar.</p>
+<p><a href="https://openai.com/index/introducing-shirudo/">OpenAI</a></p>
+
+<h2>2. Amazon koopt Decart-technologie voor Trainium</h2>
+<p>Amazon neemt de Decart Optimization Stack over, software waarmee AI-modellen efficiënt draaien op chips van Nvidia, Amazon en Google. Ook het oprichtersteam en de onderzoekers gaan mee. De prijs is volgens Bloomberg 7,5 miljard dollar. Amazon en Decart hebben dat bedrag nog niet bevestigd, en volgens TechCrunch gaat het om een flink deel van Decart, mogelijk niet het hele bedrijf.</p>
+<p>De context is Trainium. Amazon gebruikt die chips tot nu toe in eigen datacenters en maakt zich op om ze aan klanten te verkopen, als alternatief voor Nvidia. Het grootste obstakel voor zo'n alternatief is niet de hardware, maar de software: modellen die op CUDA zijn afgestemd draaien niet vanzelf snel op andere chips. Decarts stack moet die stap kleiner maken. Decart zelf is een Israëlische startup, bekend van interactieve wereldmodellen zoals Oasis 3 en van videogeneratie.</p>
+<p>Voor jou is het vooral een signaal. Als de overstap tussen chipplatforms goedkoper wordt, kan dat op termijn de prijs van inference bij AWS drukken. Concrete prijzen of beschikbaarheidsdata zijn er niet.</p>
+<p><a href="https://techcrunch.com/2026/11/23/amazon-snaps-up-decarts-ai-optimization-tech-for-7-5b-as-it-prepares-to-sell-trainium-chips/">TechCrunch</a></p>
+
+<h2>3. CrowdStrike koopt Zscaler voor circa 43,9 miljard dollar</h2>
+<p>CrowdStrike heeft een overeenkomst om Zscaler over te nemen, volledig in aandelen. De enterprise-waarde is ongeveer 43,9 miljard dollar, gebaseerd op de slotkoers van 20 november. Elk Zscaler-aandeel wordt 1,135 CrowdStrike-aandelen, wat neerkomt op ongeveer 260,41 dollar en een premie van circa 34 procent. Na afronding bezitten de huidige CrowdStrike-aandeelhouders ongeveer 84,1 procent van het gecombineerde bedrijf.</p>
+<p>De afronding wordt verwacht in de tweede helft van CrowdStrikes boekjaar 2028 en hangt af van goedkeuring door Zscaler-aandeelhouders en toezichthouders. Beide besturen stemden unaniem in, en Jay Chaudhry met zijn gelieerde partijen, samen ongeveer 34 procent van Zscaler, tekende stemovereenkomsten. CrowdStrike verwacht ruim 1 miljard dollar omzetsynergie binnen dertig maanden en 500 miljoen dollar kostensynergie. Dat zijn cijfers van het bedrijf zelf.</p>
+<p>Waarom hoort dit in een AI-digest? Beveiliging van endpoints en netwerk groeit samen met agentische workloads, en de koper noemt gecombineerde telemetrie als kern. Voor jouw team verandert er voorlopig niets. Heb je Zscaler of Falcon in gebruik, dan is het handig om contractvoorwaarden bij verlenging in de gaten te houden.</p>
+<p><a href="https://www.crowdstrike.com/en-us/press-releases/crowdstrike-to-acquire-zscaler-bringing-network-security-and-zero-trust-to-the-falcon-platform/">CrowdStrike</a></p>
+
+<h2>4. Cisco Expressway-lek wordt misbruikt, met sporen van AI-hulp</h2>
+<p>CVE-2026-76466 (CVSS 9.8) zit in Cisco Expressway-C en Expressway-E in clusteropstellingen, zowel virtueel als fysiek. Het gaat om vaste inloggegevens en onvoldoende certificaatcontrole, waardoor een aanvaller zonder inloggegevens commando's als root kan uitvoeren. CISA zette het lek op 20 november in de KEV-catalogus en gaf federale diensten tot maandag om te patchen. Cisco publiceerde de update al in oktober.</p>
+<p>Het Russische bedrijf F6 beschrijft de eerste waargenomen aanval kort nadat een publieke proof of concept verscheen. De aanvallers kaapten twee Expressway-apparaten, kwamen via het interne netwerk bij twee clusternodes en kregen root. Daarna zochten ze naar SMB-shares, SQL Server, WinRM en inloggegevens in GitLab. F6 zegt dat de scripts erop wijzen dat een AI-assistent is gebruikt. Dat is een inschatting, geen bewijs. Cisco zelf zegt in het bijgewerkte advies geen directe aanwijzing voor actief misbruik te hebben. Een indicator is een nodeup-regel met <code>wombat@127.0.0.1</code> in erlang.log. Versienummers staan niet in het artikel, dus haal die uit Cisco's advisory.</p>
+<p>Heb je Expressway draaien, zoek dan vandaag naar die regel en controleer of de oktoberupdate erop staat.</p>
+<p><a href="https://www.theregister.com/security/2026/11/23/critical-cisco-remote-code-execution-bug-under-attack/5311722">The Register</a></p>
+
+<h2>5. ChatGPT krijgt een chat-afgestemde GPT-6.2 Sol</h2>
+<p>OpenAI rolt in ChatGPT een voor chat afgestemde versie van GPT-6.2 Sol uit voor Plus, Pro, Business en Enterprise. Enterprise-beheerders bepalen of hun gebruikers toegang krijgen. Volgens OpenAI's eigen tests verbetert beeldbegrip van 47,4 naar 71,7 procent en het volgen van moeilijke instructies van 62,5 naar 78,1 procent. Op BrowseComp loopt het model op elk redeneerniveau voor op GPT-6, ongeveer 10 procentpunt op het hoogste niveau. Het stelt ook beter gerichte vervolgvragen.</p>
+<p>In moeilijke gesprekken over onder meer eetstoornissen en emotionele afhankelijkheid volgt het model het beleid volgens de systeemkaart in 91 tot 94 procent van de gevallen, tegen 77 tot 80 procent eerder. Alle cijfers komen van OpenAI.</p>
+<p>Het gaat om de chatmodus. De modellen voor Work en Codex blijven gelijk, en over API-beschikbaarheid zegt het bericht niets. Voor je codeerwerk verandert er dus nu niets. Wel nuttig als je ChatGPT gebruikt voor schermafbeeldingen of zoekwerk. Simon Willison linkt vandaag naar een historicus die meldt dat GPT-6.2 Astra in 22 minuten de maker van een anoniem schetsboek uit 1808 aanwees. Dat is één anekdote, wel een concrete.</p>
+<p><a href="https://the-decoder.com/openai-updates-chatgpt-to-handle-complex-everyday-questions-web-searches-and-images-more-reliably/">The Decoder</a> · <a href="https://simonwillison.net/2026/Nov/24/astra-historical-mystery/">Simon Willison</a></p>
+
+<h2>6. Nuxt 4.7: Nitro v3, WebMCP en validatie van runtime config</h2>
+<p>Nuxt 4.7 bevat drie experimentele of nieuwe dingen. Eén: je kunt een Nuxt 4-app op Nitro v3 bouwen door <code>nitro</code> aan de dependencies toe te voegen, via een compatibiliteitslaag die je kunt uitzetten om resterende Nitro v2-afhankelijkheden te vinden. Het bericht noemt 33 procent meer requests per seconde op de homepage in een eigen benchmark. Nitro v3 is nog een release candidate, dus probeer het op een branch.</p>
+<p>Twee: WebMCP (<code>experimental.webmcp: true</code>). Pagina's maken acties beschikbaar als tools voor AI-agents in de browser. Dat werkt nu alleen in Chrome achter een vlag. Drie: elke <code>runtimeConfig</code>-waarde kan een Standard Schema zijn (Zod, ArkType, Valibot). Mist er een verplichte waarde, dan start de server niet en krijg je alle fouten tegelijk.</p>
+<p>Er zitten ook drie beveiligingsfixes in: route rules op <code>_payload.json</code>, gecodeerde slashes op catch-all routes en blootstelling van runtime config op de dev-server. Nuxt adviseert te upgraden en een CDN-cache te legen die getroffen payloads kan bevatten.</p>
+<p><strong>Probeer:</strong> zet je runtime config achter een Zod-schema. Dat vangt ontbrekende env-variabelen bij het opstarten en niet pas in productie.</p>
+<p><a href="https://nuxt.com/blog/v4-7">Nuxt</a></p>
+
+<h2>7. Claude Ship: Anthropic laat agents PR's reviewen, repareren en goedkeuren</h2>
+<p>Anthropic introduceerde Claude Ship voor GitHub, op Team- en Enterprise-plannen. Er zijn drie onderdelen. Code Review is algemeen beschikbaar, met Quick, Standard of Deep per repository. PR Steward (beta) werkt aan falende CI, merge-conflicten en reviewcommentaar, en zegt na elke push wat het deed en hoe je dat terugdraait. Het keurt niet goed en mergt niet. Claude Approvals (beta) past een goedkeuringsbeleid toe dat als bestand in je repo staat, vergelijkbaar met een slimmere CODEOWNERS.</p>
+<p>Het draait mee met bestaande branch protection. Anthropic adviseert met Approvals te beginnen in observe-modus. Facturering gaat per token, met uitgavenlimieten voor Code Review en PR Steward. Let op: een beleid dat Claude's review gebruikt, triggert ook in observe-modus een betaalde review. Organisaties met Zero Data Retention, HIPAA-configuratie of eigen encryptiesleutels kunnen het niet gebruiken. Anthropic zegt zelf dat het bugs en beveiligingslekken kan missen. Ook nieuw is het commando <code>/ship</code> in Claude Code, dat pusht, een PR opent en feedback afhandelt.</p>
+<p><strong>Probeer:</strong> zet Approvals op één repo met weinig verkeer in observe-modus en vergelijk een week lang met wat je teamleden zelf goedkeuren. Zet vooraf een spend limit.</p>
+<p><a href="https://claude.com/resources/articles/introducing-claude-ship">Anthropic</a> · <a href="https://the-decoder.com/anthropics-claude-ship-lets-ai-agents-review-fix-and-approve-pull-requests-on-their-own/">The Decoder</a></p>
+
+<h2>8. MCP: Tasks en Elicitation algemeen beschikbaar</h2>
+<p>Anthropic meldt meer dan 700 miljoen downloads per maand van MCP-SDK's en meer dan 10.000 connectors voor Claude. Belangrijker voor wie servers bouwt: Tasks zijn algemeen beschikbaar, zodat een server een lange klus op de achtergrond draait en pas terugmeldt als het klaar is. Elicitation ook: een lopend proces kan pauzeren en de gebruiker om ontbrekende gegevens vragen.</p>
+<p>Daarnaast zijn Skills over MCP in publieke beta, zodat een server werkwijzen meelevert met zijn tools. Bestandsuploads naar servers volgen nog. De huidige spec is stateless, dus servers hoeven geen sessiedata te bewaren. Het artikel noemt geen specversie, alleen een link met 2026-07-28 in de URL. Tool Search zou in opstellingen met veel servers meer dan 85 procent context besparen, een cijfer van Anthropic.</p>
+<p>Voor jouw agent-backends: heb je een MCP-server die iets traags doet, zoals een embedding-run of een grote Postgres-query, dan is de Tasks-aanpak een schonere oplossing dan een lange blokkerende call.</p>
+<p><a href="https://the-decoder.com/anthropic-tops-700-million-monthly-mcp-sdk-downloads-and-expands-the-protocol-for-more-autonomous-ai-agents/">The Decoder</a></p>
+
+<h2>Snel nog even</h2>
+<ul>
+<li>binary-parser vóór 2.3.1 (CVE-2026-134814, CVSS 9.2 of 8.1, het artikel zegt niet van wie welke score is) laat JavaScript uitvoeren in Node.js. Alleen als een aanvaller de parserdefinitie beheert, niet bij onbetrouwbare data met een eigen definitie. <a href="https://thehackernews.com/2026/11/critical-binary-parser-flaw-enables.html">The Hacker News</a></li>
+<li>Google DeepMind liet Gemini 4-agents kwantumalgoritmen goedkoper maken, elk resultaat bewezen in Lean. Voor fusiesimulatie 11,8 keer lagere kosten. De auteurs zeggen dat het voor vroege kwantumcomputers nog te veel middelen vraagt. <a href="https://deepmind.google/blog/finding-faster-quantum-algorithms-with-agents-and-formal-verification/">DeepMind</a></li>
+<li>Microsoft AI beschrijft Rocket, het RL-framework voor MAI Base 2 (3 biljoen parameters). Volgens Microsoft zelf passeerde het model Claude Opus 4.8 op een eigen benchmark. Niet onafhankelijk getoetst en niet beschikbaar. <a href="https://microsoft.ai/news/rl-infrastructure-at-microsoft-ai/">Microsoft AI</a></li>
+<li>Axios meldt, via The Decoder, dat meer dan twee dozijn medewerkers van OpenAI en Anthropic betwijfelen of onuitgebrachte modellen veilig te beheersen zijn. Alleen de kop was leesbaar, bedrijfsreacties ontbreken. <a href="https://the-decoder.com/dozens-of-insiders-say-openai-and-anthropics-unreleased-models-have-outgrown-their-safety-measures/">The Decoder</a></li>
+<li>Zes WordPress-plugins uit de WP Connect-familie kregen een backdoor-release, die WordPress.org's release-hold tegenhield. Check of je een van de getroffen versies hebt gehad. <a href="https://www.wordfence.com/blog/2026/11/supply-chain-compromise-backdoors-six-wp-connect-plugins-blocked-by-wordpress-orgs-release-hold/">Wordfence</a></li>
+<li>Kudelski vergeleek vier sandboxes voor coding agents (nono, Docker Sandboxes, Microsandbox, OpenShell). Ze scoren 4 tot 4,5 van 5, met hiaten bij bestands- en syscall-controle. <a href="https://kudelskisecurity.com/research/sandboxing-coding-agents">Kudelski Security</a></li>
+<li>Coding agents maken bij AWS IAM vaak dezelfde fouten: te veel Deny-statements, permission boundaries en overbodige sts:GetCallerIdentity-regels. Lees je gegenereerde policies dus na. <a href="https://engseclabs.com/blog/things-llms-get-wrong-about-aws-iam/">EngSecLabs</a></li>
+<li>Nango leerde bij het beheren van auth voor meer dan 1.000 API's: sla vernieuwde OAuth-tokens direct op en serialiseer verversingen per verbinding, anders raak je geroteerde gegevens kwijt. <a href="https://nango.dev/blog/lessons-from-operating-api-auth-for-900-apis/">Nango</a></li>
+<li>De Autoriteit Persoonsgegevens raadt de aanschaf van AI-camerabrillen af, omdat ze de veiligheid in gevaar brengen. <a href="https://nos.nl/artikel/2640119-autoriteit-persoonsgegevens-ai-camerabrillen-brengen-veiligheid-in-gevaar">NOS</a></li>
+</ul>
+</article>
+<p><a href="./">← Alle digests</a></p>
+</body>
+</html>
