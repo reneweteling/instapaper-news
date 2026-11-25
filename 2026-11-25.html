@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI-digest – woensdag 25 november</title>
+<meta name="author" content="René Weteling">
+<meta property="og:title" content="AI-digest – woensdag 25 november">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2026-11-25">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<article>
+<h1>AI-digest – woensdag 25 november</h1>
+<p>Vandaag in het kort: Cognition bracht SWE-2.1 uit, een coding-model dat zijn Terminal-Bench-score ruwweg verdubbelde. OpenAI laat zien dat GPT-6 eiwitten kan ontwerpen, met duidelijke kanttekeningen. Een kritiek lek in een verlaten ASP.NET-bibliotheek wordt actief misbruikt en krijgt geen patch. Databricks analyseerde 5.400 kwaadaardige npm-pakketten en ziet de aanvallers naar CI-pipelines verhuizen. Op de beurs zakt de Nasdaq 100 verder weg terwijl de handel in B300-servers door Amerikaanse regels opschuift. Bij Anthropic gaat het om MCP-servers die skills kunnen meeleveren. Arstechnica.com bleek vanuit mijn omgeving niet bereikbaar, dus dat artikel heb ik alleen via de TLDR-samenvatting kunnen meenemen.</p>
+
+<h2>1. Cognition SWE-2.1: bijna dubbele score op Terminal-Bench</h2>
+<p>Cognition, het bedrijf achter Devin en Windsurf, bracht SWE-2.1 uit. Het model is met puur reinforcement learning getraind op basis van Kimi K3. Volgens Cognition zelf haalt het 50,0 op Terminal-Bench 4.1, tegen 24,2 voor SWE-2. Op FrontierCode 2.0 gaat het van 24,1 naar 41,3 en op SWE Marathon v1.2 van 32,5 naar 54,9.</p>
+<p>De vergelijking met de top is nuchterder. Op dezelfde Terminal-Bench staat Kimi K3.1 op 59,7 en Claude Opus 5.5 op 65,8, beide volgens de eigen tabel van Cognition. SWE-2.1 is dus sterk gegroeid, maar geen nieuwe koploper. Er is ook een Ultrafast-variant die hetzelfde model via een samenwerking met Cerebras ongeveer tien keer sneller draait, en een Cyber-variant met ruimere veiligheidsgrenzen voor Devin Security. Die laatste scoort 80,0 op ExploitBench, tegen 36,1 eerder. Dat zijn allemaal cijfers van de maker.</p>
+<p>Het model zit in Devin Desktop, Cloud en CLI. Tot 8 december is het gratis op Desktop en CLI, daarna geldt tot 30 januari een kortingstarief. Een vaste prijs staat niet in de aankondiging. Voor jou is het vooral een goedkoop tweede model om naast Claude Code of Codex te proberen op taken in de terminal.</p>
+<p><strong>Probeer:</strong> geef SWE-2.1 tijdens de gratis periode dezelfde twee of drie taken die je normaal aan Claude Code geeft, bijvoorbeeld een Django-migratie en een falende Docker-build, en vergelijk de diffs.</p>
+<p><a href="https://cognition.com/blog/swe-2-1">Cognition</a></p>
+
+<h2>2. OpenAI: GPT-6 ontwerpt eiwitten, maar niet helemaal alleen</h2>
+<p>OpenAI beschrijft dat de GPT-6-modellen eiwitvormen en aminozuursequenties kunnen ontwerpen met alleen redeneren en gewone code, zonder gespecialiseerde biologiemodellen aan te roepen voor het ontwerp zelf. In labtests met partner Onava bond 70 procent (128 van 182) van de herontworpen VHH-lussen aan IL-4Rα. Bij nieuw ontworpen minibinders was dat 10,9 procent (35 van 322).</p>
+<p>De kanttekeningen staan in het stuk zelf. Gespecialiseerde modellen als ProteinMPNN en ESMFold hebben de kandidaten gefilterd, dus dit is geen volledig zelfstandig ontwerp. Bij het voorspellen van een complete eiwitstructuur scoort GPT-6.2 gemiddeld 0,26 TM-score tegen 0,93 voor ESMFold2. Binden is bovendien geen functie: stabiliteit, specificiteit en veiligheid zijn niet getest. Het beste model is een intern onderzoeksmodel dat niet publiek beschikbaar is, en de auteurs noemen misbruik als biorisico.</p>
+<p>Voor jouw werk is dit geen directe tool. Het is wel een voorbeeld van een patroon dat je ook in code ziet: een algemeen model met een code-interpreter haalt gespecialiseerde modellen in, mits je er een filter van specialistische tools achter zet.</p>
+<p><a href="https://openai.com/index/gpt-6-models-demonstrate-intrinsic-protein-design-capabilities/">OpenAI</a></p>
+
+<h2>3. Idunno.AntiCsrf: kritiek lek zonder patch wordt misbruikt</h2>
+<p>Aanvallers misbruiken CVE-2026-131914 (CVSS 9.3) in Idunno.AntiCsrf, een derdepartij-module voor ASP.NET WebForms die sinds december 2008 niet is bijgewerkt. De module deserialiseert niet-vertrouwde CSRF-tokendata met een ObjectStateFormatter zonder sleutel, MAC of handtekening. Eén ongeauthenticeerde POST volstaat voor code-uitvoering in het IIS-werkproces w3wp.exe. Getroffen zijn versie 0.9.1.0 en 0.9.1 Beta.</p>
+<p>Mandiant meldt actief misbruik in het wild en watchTowr ziet sondes om kwetsbare hosts te herkennen. Er is geen officiële patch en die komt volgens watchTowr waarschijnlijk ook niet. Het advies is de bibliotheek te vervangen door <code>System.Web.Helpers.AntiForgery</code>, ViewStateUserKey met MAC-gecontroleerde ViewState, of IAntiforgery in ASP.NET Core. Een WAF-regel is een tussenoplossing. Het artikel noemt ook een CISA-KEV-datum met een ander CVE-nummer, waarschijnlijk een fout in het artikel, dus controleer die in de catalogus zelf.</p>
+<p>Je draait waarschijnlijk geen WebForms, maar het patroon is leerzaam: een vergeten dependency van zestien jaar oud die ineens je kroonjuweel is. Het advies bij een compromis is alle geheimen in Web.config te roteren, inclusief de machineKey.</p>
+<p><strong>Probeer:</strong> zoek bij klanten of eigen oude systemen met <code>grep -ri "Idunno.AntiCsrf" --include=Web.config</code> en in de bin-mappen.</p>
+<p><a href="https://thehackernews.com/2026/11/hackers-exploit-critical-aspnet-anti.html">The Hacker News</a></p>
+
+<h2>4. 5.400 kwaadaardige npm-pakketten: de echte schade zit in gekaapte pakketten</h2>
+<p>Databricks analyseerde ongeveer 5.400 kwaadaardige npm-pakketten uit de periode december 2025 tot oktober 2026. Het opvallendste getal: gekaapte legitieme pakketten zijn 7 procent van de set maar goed voor meer dan 99 procent van de downloads. Pakketten die een aanvaller zelf aanmaakte zijn 89 procent van de set en goed voor 0,2 procent van de downloads.</p>
+<p>Sinds npm langlevende tokens introk, verschuiven aanvallers naar CI-omgevingen en publiceren ze via trusted publishing. Van de pakketten met trusted publishing in deze set is 85 procent een compromis. Trusted publishing bewijst dus waar een pakket vandaan komt, niet dat het veilig is. Verder verwijdert het register kwaadaardige pakketten pas na gemiddeld ongeveer zeven dagen, en 16 procent was bij de analyse nog installeerbaar. Het rapport noemt ook kwaadaardige MCP-servers, geknoei met configuratie van AI-assistenten en stealers voor API-sleutels, al blijft dat 1 tot 4 procent van de pakketten.</p>
+<p>Concreet voor een Next.js- of Expo-project: 78 procent van de gekaapte versies voegt een lifecycle-script toe of wijzigt er een. Dat is te monitoren. Het rapport raadt ook minimum-leeftijdsbeleid via een registry-proxy aan en korte, per job gescopete CI-credentials.</p>
+<p><strong>Probeer:</strong> zet in je package manager een minimale leeftijd voor nieuwe versies (bijvoorbeeld enkele dagen) en schakel installscripts uit, behalve voor de pakketten waar je ze echt nodig hebt.</p>
+<p><a href="https://www.databricks.com/blog/what-5400-malicious-npm-packages-reveal-about-software-supply-chain-risk-2026">Databricks</a></p>
+
+<h2>5. Chips en beurs: Nasdaq in correctie, B300-servers veranderen van eigenaar</h2>
+<p>De Nasdaq 100 zit volgens meerdere beursverslagen in een correctie na een reeks verliesdagen rond Nvidia en de aanstaande beursgang van Anthropic. Eén bron noemt ongeveer 12 procent onder het record van oktober, een andere een daling van 4,2 procent in november. De bronnen verschillen op details, dus neem de precieze percentages met een korrel zout. Techmeme verwijst naar de FT, die meldt dat Nvidia en Anthropic bij een uitverkoop meer dan 9 procent verloren, en naar Bloomberg, dat de Nasdaq 100 dicht bij een bear market noemt. Die laatste twee kon ik niet zelf lezen.</p>
+<p>Daaronder ligt een chipverhaal. Volgens Techmeme-koppen melden Bloomberg en CNBC dat Aziatische datacenters na nieuwe Amerikaanse regels over externe toegang door Chinese partijen B300-capaciteit en duizenden GPU's op de doorverkoopmarkt aanbieden, en dat huurprijzen dalen. De Washington Post meldt tegelijk dat verkopers in Shenzhen nog steeds beperkte Nvidia-hardware aanbieden, met B300-servers rond 3 miljoen dollar. Dat staat haaks op eerdere Reuters-berichten over ongeveer 1 miljoen dollar, dus de prijzen zijn onzeker. Wccftech noemt levertijden van ongeveer 40 weken.</p>
+<p>De regel zelf is een Amerikaanse maatregel (BIS) die een licentie vereist voor het leveren van veel rekenkracht aan datacenters, ook op afstand. De exacte landenlijst verschilt per bron en ik kon de huidige status niet bevestigen. Wil je dit goed volgen, kijk dan in het Federal Register. Voor jou is het praktisch: GPU-huurprijzen kunnen op korte termijn zakken, maar dat is een gok en geen toezegging.</p>
+<p><a href="https://www.techmeme.com">Techmeme</a> · <a href="https://www.scmp.com/tech/article/3374639/us-tightens-ai-chip-export-curbs-close-chinas-overseas-data-centre-loophole">SCMP</a></p>
+
+<h2>6. Van 130 TB naar 890 MB: hoe het geheugen voor een miljoen tokens kromp</h2>
+<p>Three.dev rekent voor hoe het GPU-geheugen voor een context van een miljoen tokens in vier jaar daalde van ongeveer 130,5 TB naar 890 MB. Het uitgangspunt is een eenvoudige formule voor de KV-cache: aantal items per token, maal het aantal lagen dat cachet, maal getallen per item, maal bytes per getal. Elke techniek verkleint één van die factoren.</p>
+<p>De stappen: FlashAttention schrapt de aandachtstabel van 128 TB. Grouped-query attention brengt de cache van 2,5 TB naar ongeveer 320 GB. Multi-head latent attention (DeepSeek-V3) gaat naar 68,6 GB, een 8-bit cache met sparse attention (V3.2) naar 46,9 GB, het samenvoegen van naburige tokens (V4-Flash) naar 3,4 GB, en tot slot hergebruik van caches over lagen en 4-bit getallen (V4.1-Flash) naar 890 MB. De KV-cache alleen werd ongeveer 2.900 keer kleiner. De meeste stappen na FlashAttention ruilen een beetje kwaliteit voor veel geheugen.</p>
+<p>Waarom dit voor jou telt: lange context in een RAG- of agentopstelling is meestal geheugengebonden. Als je modellen zelf host, bepaalt de KV-cache hoeveel gelijktijdige gebruikers per GPU passen. De volgende keer dat je een model kiest, loont het om te kijken welke van deze technieken het gebruikt.</p>
+<p><a href="https://three.dev/blog/how-the-memory-for-a-million-tokens-shrank">Three.dev</a></p>
+
+<h2>7. Antigravity: aparte planner en executor, live takenlijsten</h2>
+<p>Google's coding-app Antigravity kreeg versie 2.34.0, volgens het teamlid dat TestingCatalog citeert. Nieuw is een paneel Orchestrator Settings waarmee je de planner en de executor elk een eigen model en effortniveau geeft. Je kunt de orchestrator ook per gesprek kiezen. Bij lange taken zie je een live checklist met parallelle stappen die lopen en een teller van afgeronde stappen.</p>
+<p>Verder zijn de Gemini-quota voor iedereen gereset terwijl Google de modellen per tier bijwerkt. Gemini 4 Carbon is er voor betalende Pro-gebruikers en Hydrogen gaat open voor alle gebruikers. De uitrol is nog bezig, dus niet iedereen ziet de nieuwe modellen meteen. Het bericht komt van een nieuwssite die Google-medewerkers citeert, niet van een eigen changelog.</p>
+<p>Het splitsen van planning en uitvoering is een patroon dat je ook zelf kunt toepassen: een duur model voor het plan, een goedkoper voor de edits. Antigravity maakt dat nu een instelling.</p>
+<p><a href="https://www.testingcatalog.com/google-adds-task-checklists-to-antigravity-and-carbon-for-pro/">TestingCatalog</a></p>
+
+<h2>8. Anthropic: MCP-servers kunnen skills meeleveren</h2>
+<p>Anthropic kondigde vier uitbreidingen aan voor MCP in Claude en Claude Code. Skills over MCP (publieke beta): een server publiceert skills naast zijn tools, Claude laadt ze pas wanneer nodig, en ze worden bijgewerkt met de server. Tasks (algemeen beschikbaar): lange bewerkingen draaien op de achtergrond. Elicitation (algemeen beschikbaar): een server kan halverwege een aanroep de gebruiker iets vragen, bijvoorbeeld om kosten of een destructieve actie te bevestigen. Bestandsuploads naar MCP-servers volgen binnenkort.</p>
+<p>Het hoort bij de open MCP-specificatie, dus andere clients kunnen het ook ondersteunen. Skills over MCP staan standaard aan voor Pro, Max en Ultra. Teamplannen hebben een beheerder nodig, Enterprise volgt. Voorbeelden uit het bericht zijn onder meer Shopify, Supabase, Railway en GitHub.</p>
+<p>Als je zelf een MCP-server voor je RAG- of agentbackend bouwt, is dit de moeite: de instructies over hoe je tools gebruikt reizen dan mee met de server in plaats van in elke CLAUDE.md te staan.</p>
+<p><strong>Probeer:</strong> voeg aan een eigen MCP-server één skill toe met jouw conventies voor een query-tool en kijk of Claude Code die laadt zonder dat je iets lokaal installeert.</p>
+<p><a href="https://claude.com/resources/articles/skills-over-mcp-tasks-and-more">Anthropic</a></p>
+
+<h2>Snel nog even</h2>
+<ul>
+<li>Ladybird is in alpha, met downloads voor macOS en Linux en een eigen engine die geen fork is. Er is WebDriver- en Firefox-DevTools-protocolondersteuning, maar het project geeft nog geen beveiligingsbeloftes. <a href="https://ladybird.org/posts/alpha/">Ladybird</a></li>
+<li>OpenAI zette een preprint online die beweert dat de exponent voor matrixvermenigvuldiging precies 9/4 is. Ik kon de inhoud niet beoordelen en er is geen onafhankelijke bevestiging. Techmeme meldt bovendien dat drie papers uit OpenAI's wiskunde-repository zijn ingetrokken na een tekenfout in een Hodge-paper, dus wees voorzichtig. <a href="https://github.com/openai/math/blob/main/preprints/The-matrix-multiplication-exponent-is-nine-fourths-November-24-2026/paper.pdf">OpenAI math</a></li>
+<li>Amazon meldt volgens TLDR en Ars Technica dat aanvallers met AI-agents op het open-source framework Cairn een zero-day vonden en misbruikten met weinig menselijke input. Ik kon het artikel niet openen. Zoekresultaten tonen wel eerdere rapporten over misbruik van Cairn en ARTEX, zonder zero-day, dus dit detail is onbevestigd. <a href="https://arstechnica.com/security/2026/11/amazon-says-hackers-ai-agents-found-and-exploited-0-day-with-little-human-input/">Ars Technica</a></li>
+<li>AWS WAF kan nu LLM-, MCP- en A2A-endpoints ontdekken en er beheerde regels tegen misvormde berichten en prompt injection op toepassen. <a href="https://aws.amazon.com/about-aws/whats-new/2026/11/waf-ai-endpoint-discovery-protection/">AWS</a></li>
+<li>Ternary Bonsai 2.5 27B is een klein model voor op het apparaat met betere agentische codering en tool use, bij dezelfde omvang van 5,9 GB. <a href="https://prismml.com/news/bonsai-2-5-27b">PrismML</a></li>
+<li>vLLM-GR is een open-source framework dat inferentie voor generatieve aanbevelingsmodellen versnelt. <a href="https://vllm.ai/blog/2026-11-24-vllm-gr-announcement">vLLM</a></li>
+<li>Techmeme meldt dat de Europese Commissie een Quantum Act en een fonds van ongeveer 50 miljard euro voorstelt. Een zoekopdracht kon die cijfers niet bevestigen, dus beschouw het als onbevestigd. <a href="https://www.techmeme.com">Techmeme</a></li>
+<li>Australië nam de Digital Duty of Care Act aan, met boetes tot 5 procent van de wereldwijde omzet voor techbedrijven die voorzienbare schade niet voorkomen. <a href="https://www.techmeme.com">Techmeme</a></li>
+<li>Claude Artifacts zijn als bètaversie te installeren als Mac- en Windows-app, op alle plannen. <a href="https://claude.com/resources/articles/install-as-app">Anthropic</a></li>
+</ul>
+</article>
+<p><a href="./">← Alle digests</a></p>
+</body>
+</html>
