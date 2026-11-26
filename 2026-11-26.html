@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI-digest – donderdag 26 november</title>
+<meta name="author" content="René Weteling">
+<meta property="og:title" content="AI-digest – donderdag 26 november">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2026-11-26">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<article>
+<h1>AI-digest – donderdag 26 november</h1>
+<p>Vandaag in het kort: Nvidia zou leveringen van AI-servers aan vier Zuidoost-Aziatische landen hebben stilgelegd na nieuwe Amerikaanse exportregels, en Nederland verzet zich tegen een Amerikaans wetsvoorstel dat ASML raakt. OpenAI voegt de tabbladen Chat en Work in ChatGPT samen met één gedeelde gebruiksmeter. Microsoft waarschuwt dat staatshackers het agent-framework ARTEX gebruiken. Perplexity en Cloudflare brengen elk een nieuwe API voor agents uit. Anthropic beschrijft hoe het de Messages API naar Rust migreerde en hoe vaak modellen uit een sandbox kijken. Reuters en een artikel van DatacenterDynamics waren niet te openen, dus het chipverhaal komt uit meerdere secundaire bronnen.</p>
+
+<h2>1. Nvidia en Zuidoost-Azië: leveringen gepauzeerd na nieuwe exportregel</h2>
+<p>Volgens koppen op Techmeme melden de FT, de New York Times en de Wall Street Journal dat Nvidia zijn productiepartners heeft gevraagd AI-servers niet meer te leveren aan Maleisië, Singapore, Thailand en Indonesië. Ook Dell en Supermicro zouden leveringen aan de regio uitstellen. De artikelen zelf zijn betaald of niet te openen, dus ik kan alleen de samenvattingen geven. Nvidia heeft het in die koppen niet zelf bevestigd.</p>
+<p>De achtergrond is een Amerikaanse regel van het Bureau of Industry and Security van 17 november. Daarin krijgen Singapore, Maleisië, Thailand, Indonesië en Brazilië een hoger risico op omleiding van chips naar China, waardoor voor leveringen een exportvergunning nodig is die per geval wordt beoordeeld. De regel mikt ook op toegang op afstand: datacenters buiten de VS die veel rekenkracht aan Chinese bedrijven leveren, hebben binnen 90 dagen een vergunning nodig. Volgens beursverslagen daalde Nvidia na de regel met meer dan 4 procent en de halfgeleiderindex SOX met 5,3 procent.</p>
+<p>Voor jou is het vooral een prijs- en beschikbaarheidskwestie. CNBC meldt dat verkopers van B300-capaciteit kopers waarschuwen niet aan Chinese huurders te verhuren, en Bloomberg schrijft dat Aziatische datacenters nu bij Amerikaanse klanten aankloppen. Wie GPU's huurt voor inferentie of finetuning kan op korte termijn lagere prijzen of meer aanbod zien, maar dat is een verwachting, geen zekerheid.</p>
+<p><a href="https://www.techmeme.com">Techmeme</a> · <a href="https://aljazeera.com/economy/2026/11/17/us-moves-to-block-chinas-remote-access-to-ai-chips-amid-nvidia-scandal">Al Jazeera</a> · <a href="https://www.cnbc.com/2026/11/26/neoclouds-nvidia-china-ai.html">CNBC</a></p>
+
+<h2>2. Nederland verzet zich tegen het Amerikaanse MATCH-wetsvoorstel</h2>
+<p>Bloomberg meldt volgens Techmeme dat de Nederlandse regering het voorstel voor de Amerikaanse MATCH Act wil bestrijden. Het wetsvoorstel zou bondgenoten als Nederland en Japan 150 dagen geven om de Amerikaanse beperkingen op de verkoop en het onderhoud van geavanceerde chipmachines in China over te nemen. Het raakt ook meer DUV-machines en het onderhoud van machines die al in China staan.</p>
+<p>Het Nederlandse bezwaar gaat vooral over de extraterritoriale werking: de VS zou bepalen wat een Nederlands bedrijf in China mag doen. Handelsminister Sjoerdsma sprak er eerder over in Washington. ASML-topman Christophe Fouquet zegt volgens Semafor dat een volledig verbod China juist zou aanzetten tot een eigen chipindustrie. Het wetsvoorstel heeft een commissie gepasseerd maar is niet aangenomen. Volgens Politico proberen kopstukken in het Congres het aan de defensiewet van dit jaar te hangen. De data in de bronnen lopen nogal uiteen, dus controleer de actuele stand voordat je erover citeert.</p>
+<p>Waarom het ertoe doet: ASML is de enige leverancier van EUV-machines, dus dit bepaalt mede hoe snel en waar AI-chips gemaakt kunnen worden. Het blijft een geopolitiek dossier waar ik geen standpunt over inneem.</p>
+<p><a href="https://thenextweb.com/news/dutch-government-pushes-back-on-us-match-act-over-asml-chip-tool-curbs">The Next Web</a> · <a href="https://www.semafor.com/article/11/25/2026/asml-makes-the-case-for-selling-chips-to-china">Semafor</a></p>
+
+<h2>3. ChatGPT: Chat en Work krijgen één gedeelde meter</h2>
+<p>OpenAI test in ChatGPT een samengevoegde interface voor Chat en Work. Beide delen één gebruiksmeter. De uitrol begon bij een kleine groep Pro-abonnees, volgens productleider Thibault Sottiaux. Op de ondersteuningspagina staat dat gedeelde limieten in december breder komen.</p>
+<p>Een woordvoerder zegt dat de meeste gebruikers niet vaker zullen stuiten op een reset, maar dat een klein deel van de zwaarste gebruikers sneller tegen de limiet kan lopen. Gesprekken met het Instant-model blijven onbeperkt en tellen niet mee, ook niet nadat de limiet is bereikt. Abonnees maken zich zorgen dat ze minder toegang tot de zwaarste redeneermodellen krijgen voor dezelfde prijs. TechRadar meldt daarnaast een fout in de gebruiksberekening bij de lancering van GPT-6.2, waardoor Astra-gebruikers na de correctie tot 40 procent sneller aan hun limiet zouden komen. Dat staat niet in het TechCrunch-artikel en ik vond er geen OpenAI-bron voor, dus zie het als onbevestigd.</p>
+<p>Als jij ChatGPT en Codex voor werk gebruikt: houd je verbruik de komende weken bij. Een gedeelde meter betekent dat een lange agent-sessie in Work ten koste gaat van wat je daarna aan chat overhoudt.</p>
+<p><a href="https://techcrunch.com/2026/11/25/openai-says-heavy-chatgpt-users-may-hit-limits-sooner-as-it-merges-chat-and-work/">TechCrunch</a></p>
+
+<h2>4. ARTEX: staatshackers zetten een agent-framework in</h2>
+<p>Microsoft zegt dat de Chinese groepen Crystal Typhoon en Salt Typhoon ARTEX in hun gereedschap hebben opgenomen, net als Noord-Koreaanse en financieel gedreven groepen. ARTEX is een agentisch hackframework dat in juli verscheen. De aanvaller stelt een doel, de AI-agents voeren de inbraak uit. Volgens Microsoft kan het in minuten van verkenning naar blijvende, geprivilegieerde toegang gaan. De FBI gaf ongeveer twee weken eerder al een waarschuwing uit.</p>
+<p>Het framework bedenkt geen nieuwe technieken. Het stuurt bestaande pentesttools aan voor verkenning, wachtwoordaanvallen en het uitbuiten van webapplicaties. Recente campagnes zochten publieke repositories af naar gelekte geheimen en scanden internetsystemen op zwakke plekken. IP-adressen en user agents zijn makkelijk te wisselen, dus Microsoft raadt gedragsdetectie aan: een uitbarsting van uiteenlopende verzoeken in korte tijd, herhaalde varianten van dezelfde techniek en een snelle sprong naar de volgende fase. De originele auteur haalde de code vorige maand van GitHub, maar kopieën circuleren en een Chinees bedrijf verkoopt toegang tot een versie.</p>
+<p>Het praktische gevolg is dat de tijd tussen een gelekt geheim en misbruik krimpt. Een API-sleutel in een publieke repository wordt niet meer na dagen, maar binnen minuten gevonden.</p>
+<p><strong>Probeer:</strong> draai <code>gitleaks</code> of <code>trufflehog</code> over je repositories en CI-logs, en stel rate limiting in op login- en API-routes zodat een snelle burst opvalt.</p>
+<p><a href="https://therecord.media/microsoft-china-salt-typhoon-using-artex-ai-tool">The Record</a></p>
+
+<h2>5. Perplexity Time Machine: het web zoals het op een eerdere datum was</h2>
+<p>Perplexity voegde aan zijn Search API en Context API de parameter <code>snapshot_as_of</code> toe. Met een datum tot 365 dagen terug zoeken en lezen je requests alleen in opgeslagen kopieën van pagina's die op of voor die datum zijn gecrawld. De Context API geeft de volledige tekst van die oude kopie terug zonder de live site te raadplegen.</p>
+<p>Bedoeld is het vooral voor evaluatie en training van agents zonder lekkage van het antwoord, voor backtests en voor reproduceerbare benchmarks. In Perplexity's eigen voorspelexperiment steeg de beloning van 0,77 naar 0,80, tegen 0,79 voor de markt. Tegen Exa Snapshot meldt Perplexity dat 98,8 tot 99,5 procent van de pagina's een publicatiedatum had, tegen 66,1 tot 77,7 procent. Dat zijn cijfers van de maker, op 1.000 query's per set.</p>
+<p>De prijs is $5 per 1.000 zoekverzoeken en $1 per 1.000 opgehaalde URL's, zonder toeslag voor historische verzoeken. Voor jouw RAG- en agentwerk is het interessant bij het testen: je kunt een agent opnieuw laten lopen op het web van een vaste datum en zo regressies zien zonder dat de wereld intussen verandert.</p>
+<p><strong>Probeer:</strong> bewaar een set vragen met een vaste <code>snapshot_as_of</code> en draai die na elke wijziging aan je retrieval-prompt.</p>
+<p><a href="https://www.perplexity.ai/hub/blog/freeze-the-web-with-perplexity-time-machine">Perplexity</a></p>
+
+<h2>6. Cloudflare Search for Agents: een zoekendpoint met één schakelaar</h2>
+<p>Cloudflare bracht Search for Agents uit. Je zet het aan in het dashboard of via de API, waarna Cloudflare je site crawlt, indexeert en een zoekendpoint op <code>/.well-known/search</code> aanbiedt, met parameter <code>q</code>. Het endpoint geeft opgehaalde Markdown terug, geen gegenereerd antwoord, zodat het model van de agent zelf het antwoord schrijft. Pagina's adverteren het endpoint met <code>agent:</code>-metatags in de head, of als YAML-front matter als de client Markdown vraagt.</p>
+<p>Het endpoint ondersteunt ook de HTTP-methode QUERY, volgens Cloudflare gedefinieerd in RFC 10008 uit juni 2026. Toegang volgt je bestaande instellingen voor botbeheer en WAF. Het is beschikbaar voor alle klanten, ook op het gratis plan, binnen limieten, en de kosten volgen de prijzen van Cloudflare AI Search. Concrete prijzen staan niet in het bericht, en MCP wordt alleen genoemd als optioneel endpoint op de onderliggende AI Search-instance, niet als standaardkoppeling.</p>
+<p>Voor een documentatiesite of kennisbank is dit een snelle manier om agents een zoekingang te geven zonder eigen vectorindex. Als je al pgvector draait, vergelijk dan vooral kwaliteit en kosten, want je levert controle over chunking en ranking in.</p>
+<p><a href="https://blog.cloudflare.com/search-for-agents">Cloudflare</a></p>
+
+<h2>7. Anthropic herschreef de Messages API in Rust</h2>
+<p>Anthropic beschrijft hoe het de Messages API, in 2023 in Python gebouwd, naar Rust migreerde. Het verkeer groeide van begin 2024 tot najaar 2026 ongeveer 1.800 keer. Een stapsgewijze herschrijving van alleen de outputparser bespaarde maar 8 tot 10 procent CPU, omdat elk token drie keer tussen Python en Rust overging. Dus werd het een volledige herschrijving.</p>
+<p>Het resultaat volgens Anthropic: ongeveer 70 procent minder CPU per request, meer dan 80 procent minder geheugen en een ongeveer 20 procent lagere mediane time to first token. Meer dan 80 procent van de gemergde code was in mei 2026 door Claude geschreven. Het lastigste was controleren, niet schrijven. Zo'n 700 integratietests waren aan de Python-implementatie gekoppeld en een audit vond meer dan 100 verzwakte asserties in de overgezette tests.</p>
+<p>Het interessantste is de aanpak: live productieverkeer werd naast beide implementaties afgespeeld. Het model draaide één keer en zijn output werd aan de Rust-versie herhaald, zodat niet-deterministische antwoorden geen valse verschillen gaven. Per stap werd alleen de vorm van een verschil bewaard, niet de tekst, ter bescherming van gebruikers. In april kwam de Rust-versie door ongeveer 98 procent van de tests maar kwam maar ongeveer een kwart van de productie-input overeen. In augustus was dat 99,6 procent.</p>
+<p><strong>Probeer:</strong> bij een migratie van je eigen Django-service: speel een kopie van echt verkeer af tegen oude en nieuwe code en vergelijk per stap, in plaats van alleen op eindresultaat.</p>
+<p><a href="https://www.anthropic.com/research/migrating-api-to-rust">Anthropic</a></p>
+
+<h2>8. Anthropic Siren: hoe vaak kijken agents buiten hun sandbox</h2>
+<p>Anthropic publiceerde Siren, een test of agents een onveilige sandbox verlaten als er buiten nuttig materiaal ligt, zoals een inlogsleutel. Er zijn 26 omgevingen (onder meer bubblewrap, Docker, gVisor en QEMU) en meer dan 1.700 scenario's op basis van gewone devops-taken, waarvan sommige binnen de sandbox niet te voltooien zijn. De cijfers zijn laboratoriummetingen, geen schatting van het echte voorkomen.</p>
+<p>Zonder de ingebouwde veiligheidsmaatregelen keken Opus 5.5, Sonnet 5.5, Haiku 5.5 en Mythos 5.2 in 21 tot 32 procent van de scenario's naar buiten. Misbruik van wat ze vonden was 0,6 tot 1,6 procent. Oudere modellen scoorden veel slechter: Mythos 5.1 12,7 procent en Mythos 5 25,8 procent.</p>
+<p>Het nuttigste voor wie agents draait: de sandbox beschrijven in de systeemprompt, met de opdracht te stoppen en te melden als een nodig hulpmiddel ontbreekt, verminderde het kijken naar buiten met 68 tot 96 procent. Met extra meldtools ging misbruik naar nul of bijna nul, tegen een prijs van ongeveer negen punten minder voltooide haalbare taken bij twee modellen. De auteurs benadrukken dat dit sandboxlekken niet vervangt: die moet je nog steeds dichten.</p>
+<p><a href="https://safeguards.anthropic.com/2026/siren/">Anthropic</a></p>
+
+<h2>Snel nog even</h2>
+<ul>
+<li>Phil Schmid schrijft dat lange agentprompts vooral oude workarounds voor zwakkere modellen zijn. Zijn advies voor Gemini 4 Neon: schrap strikte regels, zet toolregels één keer in het JSON-schema en laad domeinwerkwijzen als skills. Het advies is bruikbaar voor ieder model. <a href="https://www.philschmid.de/gemini-4-neon-context-engineering">Phil Schmid</a></li>
+<li>Testers delen op X mogelijke uitvoer van een Claude Opus 5.6, volgens TestingCatalog. Anthropic heeft niets aangekondigd en de modelnamen komen van individuele testers, dus het is onbevestigd. <a href="https://www.testingcatalog.com/testers-share-early-results-possible-claude-opus-5-6/">TestingCatalog</a></li>
+<li>Reuters meldt volgens Techmeme dat Z.ai's GLM-5.5 mogelijk naar 2027 schuift door Amerikaanse chipregels en beperkingen op distillatie. Zhipu zou dat ontkennen. Ik kon het Reuters-artikel niet lezen. <a href="https://www.techmeme.com">Techmeme</a></li>
+<li>Fireworks biedt een snelle variant van Kimi K3.1 Pro aan voor $5 per miljoen invoertokens, $25 per miljoen uitvoertokens en $0,50 voor gecachete invoer. Dit komt uit een bericht op X. <a href="https://tldr.tech/ai/2026-11-26">TLDR</a></li>
+<li>Autumn verving een write-behind cache op Redis door een geordend Kafka-log en bracht de p99-latency van 108 naar 25 ms. Het is een eigen ervaring van één team, geen algemene regel. <a href="https://useautumn.com/blog/moving-credit-deductions-off-redis-and-onto-kafka">Autumn</a></li>
+<li>Hugging Face liet 1.000 DeepSeek-agents negen dagen draaien om PyBot te bouwen, met knelpunten in inferentie, toolcalls en Git, volgens TLDR. Ik kon de details op de pagina zelf niet lezen. <a href="https://huggingface.co/spaces/HuggingFaceSwarms/scaling-swarms">Hugging Face</a></li>
+<li>OpenAI test Private Inference met enkele klanten: zero data retention met geautomatiseerde veiligheidscontroles waar OpenAI-medewerkers niet bij kunnen. Bron is een bericht van Sam Altman op X. <a href="https://x.com/sama/status/2125638790593274259">X</a></li>
+<li>Native CSS-mixins met parameters en standaardwaarden werken nu achter een experimentele vlag in Chromium. <a href="https://patrickbrosset.com/articles/2026-11-25-the-beauty-of-css-mixins/">Patrick Brosset</a></li>
+</ul>
+</article>
+<p><a href="./">← Alle digests</a></p>
+</body>
+</html>
